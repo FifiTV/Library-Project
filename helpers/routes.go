@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"my-firebase-project/controllers"
@@ -7,5 +7,6 @@ import (
 )
 
 func Routes(app *fiber.App) {
-	app.Get("/", controllers.GetAllBooks)
+	// app.Get("/", controllers.GetAllBooks)
+	app.Get("/", controllers.GetMainPage)
 }

@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"my-firebase-project/helpers"
 	"my-firebase-project/initializers"
 	"net/http"
 	"os"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // Example protected route
@@ -21,8 +20,8 @@ func init() {
 }
 
 func main() {
-	app := fiber.New()
 
-	Routes(app)
-	app.Listen(":" + os.Getenv("PORT"))
+	app := helpers.CreateApp()
+	// localhost for remove a windowds defeder ask
+	app.Listen("localhost:" + os.Getenv("PORT"))
 }
