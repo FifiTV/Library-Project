@@ -11,3 +11,7 @@ func GetMainPage(c *fiber.Ctx) error {
 
 	return c.Render("partials/index", fiber.Map{})
 }
+
+func GetRegistrationPage(c *fiber.Ctx) error {
+	return c.Render("registration", fiber.Map{})
+}

@@ -8,7 +8,7 @@ import (
 func CreateApp() *fiber.App {
 
 	engine := html.New("views", ".html")
-
+	engine.Reload(true)
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})

@@ -18,9 +18,11 @@
   <body>
     {{template "header"}} {{template "menu"}}
     <h1>Books</h1>
-    {{range .}} {{.Title}} {{.Author}}
+    {{range .}}
+    {{.Title}} {{.Author}}
     <hr />
-    {{end}} {{template "footer"}}
+    {{end}}
+    {{template "footer"}}
     <script src="scripts/script.js"></script>
   </body>
 </html>
