@@ -124,4 +124,65 @@ body {
   }
   
   /*footer end*/
+
+  /*book-list look*/
+  .book-list {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.book-list li {
+    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* Button styling */
+.book-list .button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 1rem; /* Creates space between button and title */
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* Adjusting title and details */
+.title {
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.details {
+    color: #555;
+    font-size: 1.1rem;  /* Make author and pages slightly bigger */
+    margin-top: 0.3rem;
+    display: flex;
+    flex-direction: column; /* Stack author and pages vertically */
+    gap: 0.3rem; 
+}
+
+/* Layout adjustments for list items */
+.book-list li > form {
+    order: 1; /* Moves the button to the left */
+}
+.book-list li > div {
+    flex-grow: 1;
+}
   

@@ -14,7 +14,7 @@ var DB *firestore.Client
 
 func ConnectToDb(ctx context.Context) error {
 
-	opt := option.WithCredentialsFile("serviceAccountKey.json")
+	opt := option.WithCredentialsFile("C:\\users\\mikol\\Documents\\bib\\keys\\serviceAcountKey.json")
 
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {

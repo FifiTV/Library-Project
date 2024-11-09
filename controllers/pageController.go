@@ -1,6 +1,8 @@
 package controllers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 func GetMainPage(c *fiber.Ctx) error {
 
@@ -14,4 +16,15 @@ func GetMainPage(c *fiber.Ctx) error {
 
 func GetRegistrationPage(c *fiber.Ctx) error {
 	return c.Render("registration", fiber.Map{})
+}
+
+func GetListBookPage(c *fiber.Ctx) error {
+
+	books := GetAllBooks(c)
+	//fmt.Print(books)
+
+	return c.Render("booklist", fiber.Map{
+		"Title": "BookList Page",
+		"Books": books,
+	})
 }
