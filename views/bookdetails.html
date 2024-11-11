@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteka</title>
+    
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="/css/style.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body>
+    {{template "header"}} 
+    {{template "menu"}}
+    <div class="center-wrapper">
+    <div class="book-container">
+        <!-- Book cover image -->
+        <img src="https://www.psdcovers.com/wp-content/uploads/2023/04/The-Final-Patrol-front-cover-template.jpg?x18079" alt="Book Cover" class="book-cover">
+
+        <!-- Book details -->
+        <div class="book-details">
+            <h1 class="book-title">{{.Book.Title}}</h1>
+            <p class="book-year">Published: 1909</p>
+            <p class="book-description">
+                To Kill a Mockingbird is a timeless novel that explores themes of racial injustice, moral growth, and compassion in the American South during the 1930s. The story is told from the perspective of Scout Finch, a young girl whose father, Atticus Finch, is a lawyer appointed to defend Tom Robinson, a Black man wrongly accused of raping a white woman. Through Scout's eyes, readers experience her journey as she navigates the complexities of prejudice, empathy, and integrity in a deeply divided community. Harper Lee’s poignant storytelling and unforgettable characters offer readers a profound look at the courage it takes to stand up for what is right, even when society says otherwise.
+            </p>
+        </div>
+    </div>
+    </div>
+
+    {{template "footer"}}
+</body>
+
+</html>

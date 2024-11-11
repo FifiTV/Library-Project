@@ -34,3 +34,27 @@ func GetAllBooks(c *fiber.Ctx) []models.Book {
 	// Return books in JSON format
 	return books
 }
+
+func GetOneBook(c *fiber.Ctx, bookTitle string) models.Book {
+	booksCollection := initializers.DB.Collection("books")
+
+	docs, err := booksCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+
+	}
+
+	var bookReturn models.Book
+
+	for _, doc := range docs {
+		var book models.Book
+		if err := doc.DataTo(&book); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		if book.Title == bookTitle {
+			bookReturn = book
+		}
+	}
+
+	return bookReturn
+}

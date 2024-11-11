@@ -20,7 +20,8 @@
 
     <ul class="book-list">
         {{range .Books}}
-        <li>
+        <a href="/bookdetails/{{.Title}}">
+        <li class="list-element">
             <form>
               <button class="button">Wypożycz</button>
             </form>
@@ -30,6 +31,7 @@
               <span>Pages: {{.Pages}}</span>
             </div>
         </li>
+        </a>
         {{end}}
       </ul>
       {{template "footer"}}

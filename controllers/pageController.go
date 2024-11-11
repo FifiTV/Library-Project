@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,5 +29,21 @@ func GetListBookPage(c *fiber.Ctx) error {
 	return c.Render("booklist", fiber.Map{
 		"Title": "BookList Page",
 		"Books": books,
+	})
+}
+
+func GetBookDetailsPage(c *fiber.Ctx) error {
+
+	Title := c.Params("title")
+	decodedTitle, err := url.QueryUnescape(Title)
+	if err != nil {
+		// Handle the error if URL decoding fails
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error decoding title: %v", err))
+	}
+
+	book := GetOneBook(c, decodedTitle)
+
+	return c.Render("bookdetails", fiber.Map{
+		"Book": book,
 	})
 }
