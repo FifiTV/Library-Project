@@ -11,7 +11,7 @@ import (
 
 func GetAllBooks(c *fiber.Ctx) error {
 	// Reference the "books" collection
-	booksCollection := initializers.DB.Collection("books")
+	booksCollection := initializers.Client.Collection("books")
 	// Get all documents in the collection
 	docs, err := booksCollection.Documents(context.Background()).GetAll()
 	if err != nil {

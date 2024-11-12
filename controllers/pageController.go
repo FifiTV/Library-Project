@@ -15,3 +15,7 @@ func GetMainPage(c *fiber.Ctx) error {
 func GetRegistrationPage(c *fiber.Ctx) error {
 	return c.Render("registration", fiber.Map{})
 }
+
+func GetLoginPage(c *fiber.Ctx) error {
+	return c.Render("login", fiber.Map{})
+}

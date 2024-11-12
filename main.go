@@ -10,7 +10,7 @@ import (
 )
 
 // Example protected route
-func protected(w http.ResponseWriter, r *http.Request) {
+func protected(w http.ResponseWriter) {
 	fmt.Fprintln(w, "This is a protected page. User is logged in.")
 }
 

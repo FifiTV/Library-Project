@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-var DB *firestore.Client
+var Client *firestore.Client
 
 func ConnectToDb(ctx context.Context) error {
 
@@ -21,7 +21,7 @@ func ConnectToDb(ctx context.Context) error {
 		return fmt.Errorf("error initializing app: %v", err)
 	}
 
-	DB, err = app.Firestore(ctx)
+	Client, err = app.Firestore(ctx)
 	if err != nil {
 		return fmt.Errorf("error initializing Firestore: %v", err)
 	}
