@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+  <body>
+    {{template "header"}} {{template "menu" .}}
+    <h1>Books</h1>
+    {{ .isLogged }}
+    {{template "footer"}}
+    <script src="scripts/script.js"></script>
+  </body>
+</html>

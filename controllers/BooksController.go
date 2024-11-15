@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"my-firebase-project/initializers"
+	"my-firebase-project/middleware"
 	"my-firebase-project/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,5 +38,14 @@ func GetAllBooks(c *fiber.Ctx) error {
 	}
 
 	// Return books in JSON format
-	return c.JSON(books)
+	// return c.JSON(books)
+
+	return middleware.Render("books", c, fiber.Map{
+		"books": books,
+	})
+	// isLoggedIn := middleware.IsLogged(c)
+	// return c.Render("books", fiber.Map{
+	// 	"isLoggedIn": isLoggedIn,
+	// 	"books":      books,
+	// })
 }

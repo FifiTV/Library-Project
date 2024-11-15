@@ -2,39 +2,72 @@ package controllers
 
 import (
 	"context"
+	"my-firebase-project/middleware"
+	"my-firebase-project/models"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
-
-	"my-firebase-project/models"
 )
 
 func LoginHandler(c *fiber.Ctx, client *firestore.Client) error {
 	var user models.User
-
-	// Parse request body
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid request payload")
+		return c.Status(fiber.StatusBadRequest).Render("login", fiber.Map{
+			"errorMessage": "Invalid request payload.",
+		})
 	}
 
-	// Query Firestore for user
 	iter := client.Collection("users").Where("email", "==", user.Email).Documents(context.Background())
 	doc, err := iter.Next()
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("User not found")
+		return c.Status(fiber.StatusUnauthorized).Render("login", fiber.Map{
+			"errorMessage": "Nie ma takiego użytkownika. Zarejestruj się.",
+		})
 	}
 
-	// Fetch the stored user data
 	var storedUser models.User
 	if err := doc.DataTo(&storedUser); err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Error retrieving user")
+		return c.Status(fiber.StatusInternalServerError).Render("login", fiber.Map{
+			"errorMessage": "Błąd podczas połączenia.",
+		})
 	}
 
-	// Compare passwords
 	if err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)); err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("Invalid password")
+		return c.Status(fiber.StatusUnauthorized).Render("login", fiber.Map{
+			"errorMessage": "Niepoprawne hasło.",
+		})
 	}
 
-	return c.Status(fiber.StatusOK).SendString("Login successful")
+	sess, _ := middleware.GetSession(c)
+
+	sess.Set("isLoggedIn", true)
+	sess.Set("email", storedUser.Email)
+	sess.Set("loginMessage", "Udało Ci się zalogować!")
+	if err := sess.Save(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).Render("login", fiber.Map{
+			"errorMessage": "Could not save session.",
+		})
+	}
+
+	return c.Redirect("/")
+}
+
+func LogoutHandler(c *fiber.Ctx) error {
+	sess, _ := middleware.GetSession(c)
+
+	// Usuwanie sesji
+	if err := sess.Destroy(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Could not destroy session")
+	}
+
+	return c.Redirect("/") // Powrót na stronę główną po wylogowaniu
+}
+
+func UserAuth(c *fiber.Ctx, client *firestore.Client) error {
+	return LoginHandler(c, client)
+}
+
+func UserLogoff(c *fiber.Ctx) error {
+	return LogoutHandler(c)
 }
