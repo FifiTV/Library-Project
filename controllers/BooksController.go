@@ -35,7 +35,7 @@ func GetAllBooks(c *fiber.Ctx) []models.Book {
 	return books
 }
 
-func GetOneBook(c *fiber.Ctx, bookTitle string) models.Book {
+func GetOneBook(c *fiber.Ctx, bookId int) models.Book {
 	booksCollection := initializers.DB.Collection("books")
 
 	docs, err := booksCollection.Documents(context.Background()).GetAll()
@@ -51,7 +51,7 @@ func GetOneBook(c *fiber.Ctx, bookTitle string) models.Book {
 		if err := doc.DataTo(&book); err != nil {
 			log.Printf("Error decoding document: %v", err)
 		}
-		if book.Title == bookTitle {
+		if book.Id == bookId {
 			bookReturn = book
 		}
 	}
