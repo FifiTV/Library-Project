@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+<body>
+    {{template "header"}} {{template "menu" .}}
+    <ul class="book-list">
+        {{range .Books}}
+        <a href="/bookdetails/{{.Id}}">
+        <li class="list-element">
+            <form>
+              <button class="button">Wypożycz</button>
+            </form>
+            <div class="title">{{.Title}}</div>
+            <div class="details">
+              <span>Author: {{.Author}}</span>
+              <span>Pages: {{.Pages}}</span>
+            </div>
+        </li>
+        </a>
+        {{end}}
+      </ul>
+      {{template "footer"}}
+      {{template "scripts"}}
+</body>
+</html>

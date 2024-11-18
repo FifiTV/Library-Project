@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+<body>
+    {{template "header"}} 
+    {{template "menu" .}}
+    <div class="center-wrapper">
+    <div class="book-container">
+        <!-- Book cover image -->
+        <img src={{.Book.Cover}} alt="Book Cover" class="book-cover">
+
+        <!-- Book details -->
+        <div class="book-details">
+            <h1 class="book-title">{{.Book.Title}}</h1>
+            <p class="book-year">Published: 1909</p>
+            <p class="book-description">
+                {{.Book.Description}}
+            </p>
+        </div>
+    </div>
+    </div>
+
+    {{template "footer"}}
+    {{template "scripts"}}
+</body>
+
+</html>

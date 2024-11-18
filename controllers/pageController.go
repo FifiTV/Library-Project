@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"my-firebase-project/middleware"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,4 +27,31 @@ func GetRegistrationPage(c *fiber.Ctx) error {
 
 func GetLoginPage(c *fiber.Ctx) error {
 	return middleware.Render("login", c, fiber.Map{})
+}
+
+func GetListBookPage(c *fiber.Ctx) error {
+
+	books := GetAllBooks(c)
+
+	return middleware.Render("booklist", c, fiber.Map{
+		"Title": "BookList Page",
+		"Books": books,
+	})
+}
+
+func GetBookDetailsPage(c *fiber.Ctx) error {
+
+	Id, err := strconv.Atoi(c.Params("id"))
+	//decodedTitle, err := url.QueryUnescape(Title)
+	if err != nil {
+		// Handle the error if URL decoding fails
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error decoding title: %v", err))
+	}
+
+	book := GetOneBook(c, Id)
+
+	return middleware.Render("bookdetails", c, fiber.Map{
+		"Title": "BookList Page",
+		"Book":  book,
+	})
 }
