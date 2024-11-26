@@ -20,6 +20,13 @@ func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
 		})
 	}
 
+	// Validate age
+	if user.Age <= 0 || user.Age > 120 {
+		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
+			"errorMessage": "Wiek musi być większy niż 0 i mniejszy niż 120.",
+		})
+	}
+
 	// Validate email
 	if user.Email == "" {
 		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
@@ -71,7 +78,7 @@ func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
 	}
 
 	// Success: Render the confirmation page or redirect to login
-	return c.Render("register_success", fiber.Map{
+	return c.Render("index", fiber.Map{
 		"successMessage": "Rejestracja zakończona sukcesem! Możesz się teraz zalogować.",
 	})
 }
