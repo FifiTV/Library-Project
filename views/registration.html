@@ -5,14 +5,13 @@
   </head>
   <body>
     {{template "header"}} {{template "menu" .}}
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img class="mx-auto h-20 w-auto" src="assets/register_icon.png" alt="Library_icon">
+    <div class="flex min-h-full flex-col justify-center">
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm py-6">
+        <img class="mx-auto h-20 w-auto " src="assets/register_icon.png" alt="Library_icon">
         <h2 class="mt-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Stwórz konto</h2>
       </div>
     
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <!-- Display error or success message -->
         {{if .errorMessage}}
         <div class="rounded-md bg-red-100 p-4 mb-6">
           <p class="text-sm text-red-800">{{.errorMessage}}</p>
