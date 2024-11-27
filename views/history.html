@@ -17,7 +17,7 @@
                           <div class="text-lg font-semibold text-gray-800">Book Title: {{.Book.Title}}</div>
                           <div class="text-gray-600">Author: {{.Book.Author}}</div>
                           <div class="text-gray-600">Pages: {{.Book.Pages}}</div>
-                          <div class="text-gray-600">Release date: {{.Book.DateOfRelease}}</div>
+                          <div class="text-gray-600">Publish date: {{.Book.PublishedAt}}</div>
                       </div>
 
                       <!-- Borrow event details -->
@@ -29,7 +29,7 @@
                   </div>
               </li>
           {{else}}
-              <p class="text-center text-gray-500">Ten użytkownik nie wypożyczył żadnej książki.</p>
+              <p class="text-center text-gray-500">Nie wypożyczyłeś żadnej książki.</p>
           {{end}}
       </ul>
   </div>
