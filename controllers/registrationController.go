@@ -5,11 +5,12 @@ import (
 	"log"
 	"my-firebase-project/models"
 	"regexp"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/api/iterator"
+	// "google.golang.org/api/iterator"
 )
 
 func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
@@ -22,66 +23,86 @@ func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
 		})
 	}
 
-	// Validate email
-	if user.Email == "" {
-		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
-			"errorMessage": "Email jest wymagany.",
+	// Parse birth_date
+	dateOfBirth := c.FormValue("birth_date")
+	if dateOfBirth == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errorMessage": "Data urodzenia jest wymagana.",
 		})
 	}
-	if !isValidEmail(user.Email) {
+	parsedDate, err := time.Parse("2006-01-02", dateOfBirth)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errorMessage": "Nieprawidłowy format daty. Użyj RRRR-MM-DD.",
+		})
+	}
+	user.BirthDate = parsedDate
+
+	// Validate age
+	currentDate := time.Now()
+	age := currentDate.Year() - user.BirthDate.Year()
+	if currentDate.YearDay() < user.BirthDate.YearDay() {
+		age--
+	}
+	if age <= 0 || age > 120 {
 		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
-			"errorMessage": "Nieprawidłowy format email.",
+			"errorMessage": "Wiek musi być większy niż 0 i mniejszy lub równy 120.",
+		})
+	}
+
+	// Validate email
+	if user.Email == "" || !isValidEmail(user.Email) {
+		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
+			"errorMessage": "Nieprawidłowy lub brakujący email.",
 		})
 	}
 
 	// Validate password
-	if user.Password == "" {
+	if user.Password == "" || !isValidPassword(user.Password) {
 		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
-			"errorMessage": "Hasło jest wymagane.",
-		})
-	}
-	if !isValidPassword(user.Password) {
-		return c.Status(fiber.StatusBadRequest).Render("registration", fiber.Map{
-			"errorMessage": "Hasło musi zawierać co najmniej 8 znaków, jedną cyfrę, jeden znak specjalny, jedną małą i jedną wielką literę.",
+			"errorMessage": "Nieprawidłowe hasło. Hasło musi mieć co najmniej 8 znaków.",
 		})
 	}
 
-	// Check if the user already exists
+	// Check for existing user
 	iter := client.Collection("users").Where("email", "==", user.Email).Documents(context.Background())
-	_, err := iter.Next()
-	if err == nil {
+	_, docErr := iter.Next()
+	if docErr == nil {
 		return c.Status(fiber.StatusConflict).Render("registration", fiber.Map{
 			"errorMessage": "Użytkownik z tym adresem email już istnieje.",
 		})
 	}
 
-	// Hash the password
+	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
+		log.Printf("Error hashing password: %v", err)
 		return c.Status(fiber.StatusInternalServerError).Render("registration", fiber.Map{
-			"errorMessage": "Błąd podczas tworzenia konta.",
+			"errorMessage": "Błąd podczas przetwarzania hasła.",
 		})
 	}
 	user.Password = string(hashedPassword)
 
-	// Add new available id
-	newId, err := GetUserCount(client)
+	// Generate new user ID
+	user.Id, err = GetUserCountPlusOne(client)
 	if err != nil {
-		log.Fatalf("Failed to get user count: %v", err)
+		log.Printf("Failed to get user count: %v", err)
+		return c.Status(fiber.StatusInternalServerError).Render("registration", fiber.Map{
+			"errorMessage": "Błąd podczas generowania identyfikatora użytkownika.",
+		})
 	}
-	user.Id = newId + 1
 
-	// Save user in Firestore
+	// Save user
 	_, _, err = client.Collection("users").Add(context.Background(), user)
 	if err != nil {
+		log.Printf("Firestore error: %v", err)
 		return c.Status(fiber.StatusInternalServerError).Render("registration", fiber.Map{
 			"errorMessage": "Nie udało się zarejestrować użytkownika.",
 		})
 	}
 
-	// Success: Render the confirmation page or redirect to login
 	return c.Render("index", fiber.Map{
-		"successMessage": "Rejestracja zakończona sukcesem! Możesz się teraz zalogować.",
+		"successMessage": "Rejestracja zakończona sukcesem!",
 	})
 }
 
@@ -94,34 +115,23 @@ func isValidEmail(email string) bool {
 // Helper function to validate password
 func isValidPassword(password string) bool {
 	return len(password) >= 8 &&
-		regexp.MustCompile(`[0-9]`).MatchString(password) &&
-		regexp.MustCompile(`[!@#$%^&*]`).MatchString(password) &&
-		regexp.MustCompile(`[a-z]`).MatchString(password) &&
-		regexp.MustCompile(`[A-Z]`).MatchString(password)
+		regexp.MustCompile(`[0-9a-zA-Z]`).MatchString(password) &&
+		regexp.MustCompile(`[!@#$%^&*]`).MatchString(password)
 }
 
 // Helper function to retrieve the number of documents in the "users" collection.
-func GetUserCount(client *firestore.Client) (int, error) {
+func GetUserCountPlusOne(client *firestore.Client) (int, error) {
+
 	ctx := context.Background()
 
 	// Use Firestore's collection reference to get all documents
 	users := client.Collection("users")
 
 	// Get all documents to count them
-	iter := users.Documents(ctx)
-	defer iter.Stop()
-
-	count := 0
-	for {
-		_, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return 0, err
-		}
-		count++
+	docs, err := users.Documents(ctx).GetAll()
+	if err != nil {
+		log.Fatalf("Failed to get documents: %v", err)
 	}
-
+	count := len(docs) + 1
 	return count, nil
 }
