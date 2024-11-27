@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"my-firebase-project/models"
 	"regexp"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/api/iterator"
 )
 
 func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
@@ -62,6 +64,13 @@ func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
 	}
 	user.Password = string(hashedPassword)
 
+	// Add new available id
+	newId, err := GetUserCount(client)
+	if err != nil {
+		log.Fatalf("Failed to get user count: %v", err)
+	}
+	user.Id = newId + 1
+
 	// Save user in Firestore
 	_, _, err = client.Collection("users").Add(context.Background(), user)
 	if err != nil {
@@ -71,7 +80,7 @@ func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {
 	}
 
 	// Success: Render the confirmation page or redirect to login
-	return c.Render("register_success", fiber.Map{
+	return c.Render("index", fiber.Map{
 		"successMessage": "Rejestracja zakończona sukcesem! Możesz się teraz zalogować.",
 	})
 }
@@ -89,4 +98,30 @@ func isValidPassword(password string) bool {
 		regexp.MustCompile(`[!@#$%^&*]`).MatchString(password) &&
 		regexp.MustCompile(`[a-z]`).MatchString(password) &&
 		regexp.MustCompile(`[A-Z]`).MatchString(password)
+}
+
+// Helper function to retrieve the number of documents in the "users" collection.
+func GetUserCount(client *firestore.Client) (int, error) {
+	ctx := context.Background()
+
+	// Use Firestore's collection reference to get all documents
+	users := client.Collection("users")
+
+	// Get all documents to count them
+	iter := users.Documents(ctx)
+	defer iter.Stop()
+
+	count := 0
+	for {
+		_, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return 0, err
+		}
+		count++
+	}
+
+	return count, nil
 }

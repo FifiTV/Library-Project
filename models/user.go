@@ -1,6 +1,11 @@
 package models
 
 type User struct {
-	Email    string `firestore:"email"`
-	Password string `firestore:"password"`
+	Id        int    `firestore:"id"`
+	Email     string `firestore:"email"`
+	Password  string `firestore:"password"`
+	FirstName string `firestore:"firs_tname"`
+	LastName  string `firestore:"last_name"`
+	Age       int    `firestore:"age"`
+	Role      int    `firestore:"role"`
 }
