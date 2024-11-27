@@ -10,7 +10,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
-	// "google.golang.org/api/iterator"
 )
 
 func RegisterHandler(c *fiber.Ctx, client *firestore.Client) error {

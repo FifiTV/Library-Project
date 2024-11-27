@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+<body class="bg-gray-100 font-sans leading-relaxed">
+    {{template "header"}} {{template "menu" .}}
+    <div class="max-w-6xl mx-auto p-6">
+      <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
+
+      <ul class="space-y-4">
+          {{range .BorrowEvents}}
+              <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300">
+                  <div class="flex flex-col md:flex-row md:space-x-6">
+                      <!-- Book details -->
+                      <div class="flex-shrink-0">
+                          <div class="text-lg font-semibold text-gray-800">Book Title: {{.Book.Title}}</div>
+                          <div class="text-gray-600">Author: {{.Book.Author}}</div>
+                          <div class="text-gray-600">Pages: {{.Book.Pages}}</div>
+                          <div class="text-gray-600">Release date: {{.Book.DateOfRelease}}</div>
+                      </div>
+
+                      <!-- Borrow event details -->
+                      <div class="mt-4 md:mt-0">
+                          <div class="text-gray-800 text-lg">Borrower ID: {{.BorrowEvent.UserID}}</div>
+                          <div class="text-gray-600">Borrowed on: {{.FormattedBorrowStart}}</div>
+                          <div class="text-gray-600">Due by: {{.FormattedBorrowEnd}}</div>
+                      </div>
+                  </div>
+              </li>
+          {{else}}
+              <p class="text-center text-gray-500">Ten użytkownik nie wypożyczył żadnej książki.</p>
+          {{end}}
+      </ul>
+  </div>
+      {{template "footer"}}
+      {{template "scripts"}}
+</body>
+</html>
