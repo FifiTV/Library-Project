@@ -68,12 +68,6 @@ func GetHistoryPage(c *fiber.Ctx) error {
 		return err
 	}
 
-	// Format the dates and store them as strings
-	for i := range borrowEventsWithBooks {
-		borrowEventsWithBooks[i].FormattedBorrowStart = borrowEventsWithBooks[i].BorrowEvent.BorrowStart.Format("2006-01-02")
-		borrowEventsWithBooks[i].FormattedBorrowEnd = borrowEventsWithBooks[i].BorrowEvent.BorrowEnd.Format("2006-01-02")
-	}
-
 	return middleware.Render("history", c, fiber.Map{
 		"Title":        "Historia wypożyczeń",
 		"BorrowEvents": borrowEventsWithBooks,

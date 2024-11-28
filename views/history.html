@@ -17,14 +17,14 @@
                           <div class="text-lg font-semibold text-gray-800">Book Title: {{.Book.Title}}</div>
                           <div class="text-gray-600">Author: {{.Book.Author}}</div>
                           <div class="text-gray-600">Pages: {{.Book.Pages}}</div>
-                          <div class="text-gray-600">Publish date: {{.Book.PublishedAt}}</div>
+                          <div class="text-gray-600">Year of release: {{.Book.PublishedAt.Year}}</div>
                       </div>
 
                       <!-- Borrow event details -->
                       <div class="mt-4 md:mt-0">
                           <div class="text-gray-800 text-lg">Borrower ID: {{.BorrowEvent.UserID}}</div>
-                          <div class="text-gray-600">Borrowed on: {{.FormattedBorrowStart}}</div>
-                          <div class="text-gray-600">Due by: {{.FormattedBorrowEnd}}</div>
+                          <div class="text-gray-600">Borrowed on: {{.BorrowEvent.BorrowStart.Format "2006-01-02"}}</div>
+                          <div class="text-gray-600">Due by: {{.BorrowEvent.BorrowEnd.Format "2006-01-02"}}</div>
                       </div>
                   </div>
               </li>

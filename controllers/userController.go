@@ -41,7 +41,7 @@ func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, erro
 
 	// Retrieve userID from session
 	sess, _ := middleware.GetSession(c)
-	userID := sess.Get("userID").(int) // Ensure this is cast to int, assuming the userID is stored as an integer
+	userID := sess.Get("userID").(int)
 
 	// Filter borrow events for the user
 	var filteredBorrowEvents []models.BorrowEvent
