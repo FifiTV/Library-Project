@@ -14,17 +14,16 @@
                   <div class="flex flex-col md:flex-row md:space-x-6">
                       <!-- Book details -->
                       <div class="flex-shrink-0">
-                          <div class="text-lg font-semibold text-gray-800">Book Title: {{.Book.Title}}</div>
-                          <div class="text-gray-600">Author: {{.Book.Author}}</div>
-                          <div class="text-gray-600">Pages: {{.Book.Pages}}</div>
-                          <div class="text-gray-600">Year of release: {{.Book.PublishedAt.Year}}</div>
+                          <div class="text-lg font-semibold text-gray-800">Tytuł: {{.Book.Title}}</div>
+                          <div class="text-gray-600">Autor: {{.Book.Author}}</div>
+                          <div class="text-gray-600">Ilość stron: {{.Book.Pages}}</div>
+                          <div class="text-gray-600">Rok wydania: {{.Book.PublishedAt.Year}}</div>
                       </div>
 
                       <!-- Borrow event details -->
                       <div class="mt-4 md:mt-0">
-                          <div class="text-gray-800 text-lg">Borrower ID: {{.BorrowEvent.UserID}}</div>
-                          <div class="text-gray-600">Borrowed on: {{.BorrowEvent.BorrowStart.Format "2006-01-02"}}</div>
-                          <div class="text-gray-600">Due by: {{.BorrowEvent.BorrowEnd.Format "2006-01-02"}}</div>
+                          <div class="text-gray-600">Wypożyczono dnia: {{.BorrowEvent.BorrowStart.Format "2006-01-02"}}</div>
+                          <div class="text-gray-600">Wypożyczono do dnia: {{.BorrowEvent.BorrowEnd.Format "2006-01-02"}}</div>
                       </div>
                   </div>
               </li>
