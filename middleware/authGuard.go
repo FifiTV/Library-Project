@@ -9,6 +9,19 @@ import (
 
 var store = session.New() // Utworzenie magazynu sesji
 
+// Use this when you want to create a route, and the user must be logged in to get there
+//
+// Parameters:
+//
+// - c (*fiber.Ctx): The Fiber context, used to manage the HTTP request and response.
+//
+// Usage:
+//
+// app.Get("/logout", middleware.AuthGuard, controllers.LogoutHandler)
+//
+// Returns:
+//
+// - error: Any error encountered during the rendering process.
 func AuthGuard(c *fiber.Ctx) error {
 	if !IsLogged(c) {
 		return c.Redirect("/login")
