@@ -53,6 +53,7 @@ func GetBookDetailsPage(c *fiber.Ctx) error {
 	if err1 != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error during finding avaliable books: %v", err))
 	}
+
 	return middleware.Render("bookdetails", c, fiber.Map{
 		"Title":                  "BookList Page",
 		"Book":                   book,

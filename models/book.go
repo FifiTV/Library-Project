@@ -7,7 +7,7 @@ type Book struct {
 	Author      string    `firestore:"author"`
 	Pages       int       `firestore:"pages"`
 	Id          int       `firestore:"id"`
-	Description string    `firebase:"description"`
-	Cover       string    `firebase:"cover"`
-	PublishedAt time.Time `firebase:"published_at"`
+	Description string    `firestore:"description"`
+	Cover       string    `firestore:"cover"`
+	PublishedAt time.Time `firestore:"published_at"`
 }

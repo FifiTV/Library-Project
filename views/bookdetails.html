@@ -17,7 +17,7 @@
         <h1 class="book-title text-2xl font-bold text-gray-900">{{.Book.Title}}</h1>
         <h3 class="book-title text-xl text-gray-900">{{.Book.Author}}</h3>
         <!-- TRZEBA TO NAPRAWIC -->
-        <p class="book-year text-sm text-gray-500 mt-2">Rok wydania: {{.Book.PublishedAt}}</p> 
+        <p class="book-year text-sm text-gray-500 mt-2">Rok wydania: {{ .Book.PublishedAt.Year}}</p> 
         <p class="book-year text-sm text-gray-500 mt-2">Ilość stron: {{.Book.Pages}}</p> 
         <p class="book-description text-gray-700 mt-4">
           {{.Book.Description}}
