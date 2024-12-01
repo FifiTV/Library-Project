@@ -1,9 +1,16 @@
 {{define "header"}}
-<header>
-  <link rel="icon" type="image/x-icon" href="/assets/logo_sowa_noBG.ico" />
-  <div class="header-content">
-    <img class="logo" src="/assets/logo_sowa_noBG.png" alt="Logo" />
+<header class="relative flex items-center justify-between p-4 text-white">
+  <!-- Logo i tytuł -->
+  <div
+    class="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-4"
+  >
+    <img class="logo w-12 h-12" src="/assets/logo_sowa_noBG.png" alt="Logo" />
     <h1 class="title text-3xl">Biblioteka</h1>
   </div>
+
+  <!-- Powiadomienia -->
+
+  <div class="ml-auto">{{template "notifications"}}</div>
+  {{template "scripts"}}
 </header>
 {{end}}
