@@ -5,14 +5,56 @@
   </head>
   <body>
     {{template "header"}} {{template "menu" .}}
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+    <div class="flex min-h-full flex-col justify-center px-6 py-8 lg:px-8">
+
       <div class="sm:mx-auto sm:w-full sm:max-w-sm">
         <img class="mx-auto h-20 w-auto" src="assets/register_icon.png" alt="Library_icon">
         <h2 class="mt-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Stwórz konto</h2>
       </div>
     
-      <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <!-- Display error or success message -->
+        {{if .errorMessage}}
+        <div class="mt-4 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div class="rounded-md bg-red-100 p-4">
+          <p class="text-sm text-red-800">{{.errorMessage}}</p>
+        </div>
+        </div>
+        {{end}}
+        {{if .successMessage}}
+        <div class="mt-4 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div class="rounded-md bg-green-100 p-4">
+          <p class="text-sm text-green-800">{{.successMessage}}</p>
+        </div></div>
+        {{end}}
+      </div>
+        
+      <div class="mt-4 sm:mx-auto sm:w-full sm:max-w-sm">
         <form class="space-y-6" action="#" method="POST">
+
+          <div>
+            <label for="firstname" class="block text-sm/6 font-medium text-gray-900">Imię</label>
+            <div class="mt-2">
+              <input id="firstname" name="firstname" type="text" required 
+              class="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
+            </div>
+          </div>
+
+          <div>
+            <label for="lastname" class="block text-sm/6 font-medium text-gray-900">Nazwisko</label>
+            <div class="mt-2">
+              <input id="lastname" name="lastname" type="text" required 
+              class="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
+            </div>
+          </div>
+
+          <div>
+            <label for="birth_date" class="block text-sm/6 font-medium text-gray-900">Data urodzenia</label>
+            <div class="mt-2">
+              <input id="birth_date" name="birth_date" type="date" required 
+              class="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
+            </div>
+          </div>
+
           <div>
             <label for="email" class="block text-sm/6 font-medium text-gray-900">Adres e-mail</label>
             <div class="mt-2">
@@ -27,6 +69,13 @@
             </div>
             <div class="mt-2">
               <input id="password" name="password" type="password" autocomplete="current-password" required 
+              class="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
+            </div>
+          </div>
+
+          <div>
+            <div class="mt-2">
+              <input id="role" name="role" type="hidden" value="1" required 
               class="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
             </div>
           </div>

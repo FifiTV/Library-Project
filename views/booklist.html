@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+<body>
+    {{template "header"}} {{template "menu" .}}
+    <div class="container mx-auto px-4 py-6">
+        <ul class=" grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {{range .Books}}
+            <a href="/bookdetails/{{.Id}}" class="block">
+                <li class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <!-- Book Cover -->
+                    <div class="cover mb-4">
+                        <img src="{{.Cover}}" alt="{{.Title}} Cover" class="w-full h-72 object-cover rounded-md">
+                    </div>
+                    <!-- Book Title -->
+                    <div class="title text-xl font-semibold mb-3">{{.Title}}</div>
+                    <!-- Book Details (Author and Pages) -->
+                    <div class="text-base text-gray-700">
+                        <span class="block mb-1">Autor: {{.Author}}</span>
+                        <span>Ilość stron: {{.Pages}}</span>
+                    </div>
+                </li>
+            </a>
+            {{end}}
+        </ul>
+    </div>
+    {{template "footer"}}
+    {{template "scripts"}}
+</body>
+</html>

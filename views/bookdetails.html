@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {{template "head_tmpl"}}
+</head>
+
+<body>
+  {{template "header"}}
+  {{template "menu" .}}
+
+  <div class="center-wrapper">
+    <div class="book-container bg-gray-100">
+      <img src="{{.Book.Cover}}" alt="Book Cover" class="book-cover">
+
+      <div class="book-details p-6">
+        <h1 class="book-title text-2xl font-bold text-gray-900">{{.Book.Title}}</h1>
+        <h3 class="book-title text-xl text-gray-900">{{.Book.Author}}</h3>
+        <!-- TRZEBA TO NAPRAWIC -->
+        <p class="book-year text-sm text-gray-500 mt-2">Rok wydania: {{ .Book.PublishedAt.Year}}</p> 
+        <p class="book-year text-sm text-gray-500 mt-2">Ilość stron: {{.Book.Pages}}</p> 
+        <p class="book-description text-gray-700 mt-4">
+          {{.Book.Description}}
+        </p>
+
+        <div class="flex justify-center mt-6">
+          <button 
+            class="px-6 py-2 font-semibold text-white rounded-lg transition duration-300 
+                   {{if eq .NumberOfAvaliableBooks 0}}bg-gray-400 cursor-not-allowed{{else}}bg-blue-500 hover:bg-blue-600{{end}}"
+            {{if eq .NumberOfAvaliableBooks 0}}disabled{{end}}>
+            Wypożycz
+          </button>
+        </div>
+
+        <p class="mt-4 text-sm text-gray-600 italic text-center">
+          Dostępne kopie: <span class="font-semibold text-gray-800">{{.NumberOfAvaliableBooks}}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {{template "footer"}}
+  {{template "scripts"}}
+</body>
+
+</html>
