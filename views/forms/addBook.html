@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{template "head_tmpl"}}
+</head>
+<body>
+    {{template "header"}} {{template "menu" .}}
+    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+            <img class="mx-auto h-20 w-auto" src="assets/add_book.png" alt="Library Icon">
+        </div>
+
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            {{if .errorMessage}}
+            <div id="error-message"
+                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-auto mb-6 shadow-md"
+                role="alert">
+                <strong class="font-bold">Błąd:</strong>
+                <span class="block sm:inline">{{.errorMessage}}</span>
+            </div>
+            {{end}}
+
+            <form action="/submit-book-copy" method="POST" class="space-y-6">
+                <!-- Title -->
+                <div>
+                    <label for="title" class="block text-gray-700 font-medium mb-2">Tytuł</label>
+                    <input id="title" name="title" required
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Wpisz tytuł książki">
+                </div>
+
+                <!-- Inventory Number -->
+                <div>
+                    <label for="inventoryNumber" class="block text-gray-700 font-medium mb-2">Numer Egzemplarza</label>
+                    <input type="number" id="inventoryNumber" name="inventoryNumber" min="1000" required
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Wpisz numer egzemplarza">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-gray-700 font-medium mb-2">Lokalizacja</label>
+                    <input type="text" id="location" name="location" required
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Wpisz lokalizację (np. numer pułki)">
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="NewBook" name="extraFieldsCheckbox" 
+                        class="h-5 w-5 text-blue-600 rounded focus:ring-blue-400 focus:outline-none"
+                        onclick="toggleExtraFields()">
+                    <label for="NewBook" class="ml-3 text-gray-700 font-medium">Nowa Książka</label>
+                </div>
+
+                <div id="additional-fields" class="space-y-4 hidden">
+                    <div>
+                        <label for="author" class="block text-gray-700 font-medium mb-2">Autor</label>
+                        <input type="text" id="author" name="author" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="Wpisz autora">
+                    </div>
+                    <div>
+                        <label for="pages" class="block text-gray-700 font-medium mb-2">Ilość Stron</label>
+                        <input type="number" id="pages" name="pages" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="Podaj ilość stron">
+                    </div>
+
+                    <div>
+                        <label for="publishedAt" class="block text-gray-700 font-medium mb-2">Data Publikacji</label>
+                        <input type="date" id="publishedAt" name="publishedAt" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="Podaj datę">
+                    </div>
+
+                    <div>
+                        <label for="publisher" class="block text-gray-700 font-medium mb-2">Wydawca</label>
+                        <input id="publisher" name="publisher" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="Podaj wydawcę">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        Dodaj
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{template "footer"}}
+    {{template "scripts"}}
+
+    <!-- JavaScript to Toggle Additional Fields -->
+    <script>
+        function toggleExtraFields() {
+            const extraFields = document.getElementById('additional-fields');
+            const checkbox = document.getElementById('NewBook');
+            // Toggle visibility based on checkbox status
+            if (checkbox.checked) {
+                extraFields.classList.remove('hidden');
+            } else {
+                extraFields.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

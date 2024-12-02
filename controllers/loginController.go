@@ -44,6 +44,7 @@ func LoginHandler(c *fiber.Ctx, client *firestore.Client) error {
 	sess.Set("isLoggedIn", true)
 	sess.Set("email", storedUser.Email)
 	sess.Set("userID", storedUser.Id)
+	sess.Set("userRole", storedUser.Role)
 	sess.Set("loginMessage", "Udało Ci się zalogować!")
 	if err := sess.Save(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("login", fiber.Map{
