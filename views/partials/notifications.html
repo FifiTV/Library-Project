@@ -17,13 +17,14 @@
     style="background-color: #333; border-color: #444"
   >
     <ul id="notification-items" class="p-2 space-y-2">
-      <!-- Placeholder na powiadomienia -->
       {{if .Notifications}} {{range .Notifications}}
       <li
         class="py-2 px-2 border-b border-gray-600 hover:bg-gray-600 rounded-lg transition"
         style="border-color: #444"
       >
-        {{.Message}}
+        <span class="font-semibold">{{.Message}}</span>
+        <br />
+        <span class="text-sm text-gray-400"> Książka: {{.BookTitle}} </span>
       </li>
       {{end}} {{else}}
       <li

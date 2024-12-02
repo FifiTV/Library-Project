@@ -29,4 +29,5 @@ func Routes(app *fiber.App) {
 		controllers.GetHistoryPage)
 
 	app.Get("/addBook", controllers.GetAddBookPage)
+	app.Get("/notifications", controllers.FetchNotifications)
 }
