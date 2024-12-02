@@ -3,36 +3,53 @@
   <head>
     {{template "head_tmpl"}}
   </head>
-<body class="bg-gray-100 font-sans leading-relaxed">
+  <body
+    class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen"
+  >
     {{template "header"}} {{template "menu" .}}
-    <div class="max-w-6xl mx-auto p-6">
+
+    <div class="max-w-6xl mx-auto p-6 flex-grow">
       <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
 
       <ul class="space-y-4">
-          {{range .BorrowEvents}}
-              <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300">
-                  <div class="flex flex-col md:flex-row md:space-x-6">
-                      <!-- Book details -->
-                      <div class="flex-shrink-0">
-                          <div class="text-lg font-semibold text-gray-800">Tytuł: {{.Book.Title}}</div>
-                          <div class="text-gray-600">Autor: {{.Book.Author}}</div>
-                          <div class="text-gray-600">Ilość stron: {{.Book.Pages}}</div>
-                          <div class="text-gray-600">Rok wydania: {{.Book.PublishedAt.Year}}</div>
-                      </div>
+        {{range .BorrowEvents}}
+        <li
+          class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300"
+        >
+          <div class="flex flex-col md:flex-row md:space-x-6">
+            <!-- Book details -->
+            <div class="flex-shrink-0">
+              <div class="text-lg font-semibold text-gray-800">
+                Tytuł: {{.Book.Title}}
+              </div>
+              <div class="text-gray-600">Autor: {{.Book.Author}}</div>
+              <div class="text-gray-600">Ilość stron: {{.Book.Pages}}</div>
+              <div class="text-gray-600">
+                Rok wydania: {{.Book.PublishedAt.Year}}
+              </div>
+            </div>
 
-                      <!-- Borrow event details -->
-                      <div class="mt-4 md:mt-0">
-                          <div class="text-gray-600">Wypożyczono dnia: {{.BorrowEvent.BorrowStart.Format "2006-01-02"}}</div>
-                          <div class="text-gray-600">Wypożyczono do dnia: {{.BorrowEvent.BorrowEnd.Format "2006-01-02"}}</div>
-                      </div>
-                  </div>
-              </li>
-          {{else}}
-              <p class="text-center text-gray-500">Nie wypożyczyłeś żadnej książki.</p>
-          {{end}}
+            <!-- Borrow event details -->
+            <div class="mt-4 md:mt-0">
+              <div class="text-gray-600">
+                Wypożyczono dnia: {{.BorrowEvent.BorrowStart.Format
+                "2006-01-02"}}
+              </div>
+              <div class="text-gray-600">
+                Wypożyczono do dnia: {{.BorrowEvent.BorrowEnd.Format
+                "2006-01-02"}}
+              </div>
+            </div>
+          </div>
+        </li>
+        {{else}}
+        <p class="text-center text-gray-500">
+          Nie wypożyczyłeś żadnej książki.
+        </p>
+        {{end}}
       </ul>
-  </div>
-      {{template "footer"}}
-      {{template "scripts"}}
-</body>
+    </div>
+
+    {{template "footer"}} {{template "scripts"}}
+  </body>
 </html>

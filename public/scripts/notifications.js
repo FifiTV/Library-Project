@@ -1,20 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const bellButton = document.getElementById("notification-bell");
+  const notificationMenu = document.getElementById("notification-menu");
   const notificationList = document.getElementById("notification-list");
 
-  // Ukryj listę powiadomień na starcie
-  notificationList.classList.add("hidden");
-
-  // Przełącz widoczność listy po kliknięciu
-  bellButton.addEventListener("click", () => {
+  // Przełącz widoczność listy powiadomień po kliknięciu
+  notificationMenu.addEventListener("click", (event) => {
+    event.preventDefault();
     notificationList.classList.toggle("hidden");
   });
 
-  // Zamknij listę, jeśli użytkownik kliknie poza nią
+  // Zamknij listę, jeśli kliknięto poza nią
   document.addEventListener("click", (event) => {
     if (
       !notificationList.contains(event.target) &&
-      !bellButton.contains(event.target)
+      !notificationMenu.contains(event.target)
     ) {
       notificationList.classList.add("hidden");
     }

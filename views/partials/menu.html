@@ -5,12 +5,12 @@
     <li><a href="/booklist">Lista książek</a></li>
     <li><a href="#">O nas</a></li>
     {{if .isLoggedIn}}
-      <li><a href="/history">Historia</a></li>
-      <li><a href="/logout">Wyloguj się</a></li>
+    <li><a href="/history">Historia</a></li>
+    {{template "notifications" .}}
+    <li><a href="/logout">Wyloguj się</a></li>
     {{else}}
-      <li><a href="/login">Zaloguj się</a></li>
+    <li><a href="/login">Zaloguj się</a></li>
     {{end}}
-    
   </ul>
 </nav>
-{{end}}
+{{template "scripts"}} {{end}}

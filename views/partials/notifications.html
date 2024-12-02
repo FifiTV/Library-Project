@@ -1,38 +1,39 @@
 {{define "notifications"}}
-<div class="relative">
-  <button
-    id="notification-bell"
-    class="relative p-0 mr-4 mt-2 rounded-full hover:bg-gray-600"
+<li class="relative group">
+  <!-- Napis Powiadomienia -->
+  <a
+    href="#"
+    id="notification-menu"
+    class="text-white px-4 py-2 hover:bg-gray-700 transition cursor-pointer"
+    style="background-color: #444"
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
-      class="h-8 w-8"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-      />
-    </svg>
-    <span
-      id="notification-count"
-      class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1"
-    >
-      0
-    </span>
-  </button>
+    Powiadomienia
+  </a>
+
+  <!-- Panel z listą powiadomień -->
   <div
     id="notification-list"
-    class="absolute right-0 mt-2 w-64 bg-white text-black border rounded-lg shadow-lg hidden z-20"
+    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 text-white border rounded-b-lg shadow-lg hidden group-hover:block"
+    style="background-color: #333; border-color: #444"
   >
-    <h3 class="p-2 font-semibold border-b">Powiadomienia</h3>
-    <ul id="notification-items" class="p-2">
-      <!-- Lista powiadomień -->
+    <ul id="notification-items" class="p-2 space-y-2">
+      <!-- Placeholder na powiadomienia -->
+      {{if .Notifications}} {{range .Notifications}}
+      <li
+        class="py-2 px-2 border-b border-gray-600 hover:bg-gray-600 rounded-lg transition"
+        style="border-color: #444"
+      >
+        {{.Message}}
+      </li>
+      {{end}} {{else}}
+      <li
+        class="py-2 px-2 text-center text-gray-400"
+        style="background-color: #333"
+      >
+        Brak nowych powiadomień.
+      </li>
+      {{end}}
     </ul>
   </div>
-</div>
+</li>
 {{template "scripts"}} {{end}}
