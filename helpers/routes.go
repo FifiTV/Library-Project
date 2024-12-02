@@ -30,4 +30,5 @@ func Routes(app *fiber.App) {
 
 	app.Get("/addBook", controllers.GetAddBookPage)
 	app.Get("/notifications", controllers.FetchNotifications)
+	app.Get("/add-test-notifications", controllers.AddTestNotifications)
 }
