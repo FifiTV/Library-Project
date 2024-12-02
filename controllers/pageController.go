@@ -61,6 +61,10 @@ func GetBookDetailsPage(c *fiber.Ctx) error {
 	})
 }
 
+func GetAddBookPage(c *fiber.Ctx) error {
+	return middleware.Render("forms/addBook", c, fiber.Map{})
+}
+
 func GetHistoryPage(c *fiber.Ctx) error {
 	// Get the filtered borrow events for the user along with the book details
 	borrowEventsWithBooks, err := GetAllBorrowEventsForUser(c)
