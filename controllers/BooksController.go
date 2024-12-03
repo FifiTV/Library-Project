@@ -122,9 +122,6 @@ func getNewIDForBook(c *fiber.Ctx, client *firestore.Client) (int, error) {
 			continue // skip documents without an ID field
 		}
 
-		// Print the type of idValue for debugging purposes
-		fmt.Printf("ID type: %T, ID value: %v\n", idValue, idValue)
-
 		var idInt int
 		// Convert the idValue to an int, if possible
 		switch v := idValue.(type) {

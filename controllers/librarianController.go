@@ -89,12 +89,9 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	}
 
 	// Add Copy
-	fmt.Println("Copy")
 	var bookCopy models.BookCopy
 
 	inventoryNumber, _ := strconv.Atoi(c.FormValue("inventoryNumber"))
-
-	fmt.Println("Loc:", book)
 
 	bookCopy.AddedOn = time.Now()
 	bookCopy.Available = true
@@ -103,18 +100,12 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 
 	bookCopy.Location = c.FormValue("location")
 
-	// fmt.Println("Title:", title)
-	// fmt.Println("Is new book:", isNewBook)
-
 	errABC := AddBookCopy(c, client, &bookCopy)
-	fmt.Println("Error: ", errABC)
 	if errABC != nil {
 		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
 			"errorMessage": errABC.Error(),
 		})
 	}
-
-	// fmt.Println("Book: ", book)
 	return c.Redirect("/addBook")
 
 }
