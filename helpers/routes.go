@@ -32,4 +32,8 @@ func Routes(app *fiber.App) {
 	app.Post("/addBook", func(c *fiber.Ctx) error {
 		return controllers.AddNewBookToLibrary(c, initializers.Client)
 	})
+
+	app.Post("/borrowBook/:id", func(c *fiber.Ctx) error {
+		return controllers.BorrowBook(c, initializers.Client)
+	})
 }
