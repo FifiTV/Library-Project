@@ -237,36 +237,50 @@ func AddBook(c *fiber.Ctx, client *firestore.Client, book *models.Book) error {
 }
 
 func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
-	bookID, _ := strconv.Atoi(c.Params("id"))
-	sess, _ := middleware.GetSession(c)
-	userID := sess.Get("userID")
+	bookID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid book ID: %v", err))
+	}
+
+	sess, err := middleware.GetSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to retrieve session")
+	}
+
+	userID, ok := sess.Get("userID").(int)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("User not logged in")
+	}
+
 	ctx := context.Background()
 
 	book := GetOneBook(c, bookID)
-	bookCopies, _ := GetCopiesOfBook(c, &book, true)
+
+	bookCopies, err := GetCopiesOfBook(c, &book, true)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to retrieve book copies")
+	}
 	if len(bookCopies) == 0 {
-		return fmt.Errorf("nie ma dostepnej kopii")
+		return c.Status(fiber.StatusConflict).SendString("No available copies")
 	}
 
 	if bookCopies[0].Available {
-		// Add the entry to the approvalQueue collection
 		_, _, err := client.Collection("approvalQueue").Add(ctx, map[string]interface{}{
 			"user_id":          userID,
 			"book_id":          bookID,
 			"inventory_number": bookCopies[0].InventoryNumber,
 		})
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to add request to approvalQueue")
 		}
 		log.Println("Entry added to approvalQueue successfully")
 	} else {
 		log.Println("The book is not available")
 	}
 
-	return c.Render("bookdetails", fiber.Map{
+	return middleware.Render("bookdetails", c, fiber.Map{
 		"Book":                   book,
 		"NumberOfAvaliableBooks": len(bookCopies),
 		"successMessage":         "Wysłano prośbę o wypożyczenie!",
 	})
-
 }

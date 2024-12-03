@@ -33,7 +33,7 @@ func Routes(app *fiber.App) {
 		return controllers.AddNewBookToLibrary(c, initializers.Client)
 	})
 
-	app.Post("/borrowBook/:id", func(c *fiber.Ctx) error {
+	app.Post("/bookdetails/:id", middleware.AuthGuard, func(c *fiber.Ctx) error {
 		return controllers.BorrowBook(c, initializers.Client)
 	})
 }

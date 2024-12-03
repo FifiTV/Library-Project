@@ -20,7 +20,7 @@
         >
   
         <!-- Borrow Button -->
-        <form action="/borrowBook/{{.Book.Id}}" method="POST" class="w-full flex justify-center">
+        <form action="/bookdetails/{{.Book.Id}}" method="POST" class="w-full flex justify-center">
           <button type="submit"
             class="px-6 py-2 font-semibold text-white rounded-lg transition duration-300 
                    {{if eq .NumberOfAvaliableBooks 0}}bg-gray-400 cursor-not-allowed{{else}}bg-blue-500 hover:bg-blue-600{{end}}"
