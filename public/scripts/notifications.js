@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const notificationMenu = document.getElementById("notification-menu");
   const notificationList = document.getElementById("notification-items");
   const notificationPanel = document.getElementById("notification-list");
+  const userId = window.userId || "UNKNOWN";
 
   console.log("notificationMenu:", notificationMenu);
   console.log("notificationList:", notificationList);
@@ -15,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Funkcja do pobierania powiadomień
   const fetchNotifications = async () => {
     console.log("Rozpoczęto pobieranie powiadomień...");
-    const userId = "CURRENT_USER_ID"; // Podmień na aktualne ID użytkownika (np. z sesji)
     console.log("Aktualne userId:", userId);
 
     try {
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (notifications.length === 0) {
         console.log("Brak nowych powiadomień.");
-        notificationList.innerHTML = `
+        notificationList.innerHTML = ` 
           <li class="py-2 px-2 text-center text-gray-400" style="background-color: #333;">
             Brak nowych powiadomień.
           </li>`;

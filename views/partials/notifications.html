@@ -13,12 +13,22 @@
   <!-- Panel z listą powiadomień -->
   <div
     id="notification-list"
-    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 text-white border rounded-b-lg shadow-lg hidden opacity-0 transition-opacity duration-300"
-    style="background-color: #333; border-color: #444"
+    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-gray-800 shadow-lg rounded-lg p-4 text-white max-h-72 overflow-y-auto hidden group-hover:block"
   >
-    <ul id="notification-items" class="p-2 space-y-2">
-      <!-- Powiadomienia będą dynamicznie generowane za pomocą JS -->
+    <!-- Nagłówek panelu -->
+    <h3 class="text-lg font-bold mb-2">Powiadomienia</h3>
+
+    <!-- Lista powiadomień -->
+    <ul id="notification-items" class="space-y-2">
+      {{if .Notifications}} {{range .Notifications}}
+      <li class="flex flex-col border-b border-gray-600 py-2">
+        <span class="font-semibold">{{.Message}}</span>
+        <span class="text-sm text-gray-400">Książka: {{.BookTitle}}</span>
+      </li>
+      {{end}} {{else}}
+      <li class="text-gray-400 text-center">Brak powiadomień</li>
+      {{end}}
     </ul>
   </div>
 </li>
-{{end}}
+{{template "scripts"}} {{end}}
