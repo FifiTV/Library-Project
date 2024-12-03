@@ -6,12 +6,14 @@ import (
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/models"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
+	"google.golang.org/api/iterator"
 )
 
 func GetAllBooks(c *fiber.Ctx) []models.Book {
@@ -95,16 +97,143 @@ func GetOneBook(c *fiber.Ctx, bookId int) models.Book {
 	return bookReturn
 }
 
-func AddBook(c *fiber.Ctx, client *firestore.Client) error {
-	var book models.Book
+func getNewIDForBook(c *fiber.Ctx, client *firestore.Client) (int, error) {
+	// Set up context for Firestore query
+	ctx := c.Context() // use the context from Fiber's request
 
-	// Parse request body
-	if err := c.BodyParser(&book); err != nil {
-		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
-			"errorMessage": "Nieprawidłowe dane wejściowe.",
-		})
+	// Query all documents in the "books" collection
+	iter := client.Collection("books").Documents(ctx) // get the iterator for documents in the collection
+	defer iter.Stop()
+
+	var maxID int
+	// Iterate through documents and find the max ID value
+	for {
+		doc, err := iter.Next()
+		if err != nil {
+			// If there is any other error, return it
+			break
+		}
+
+		// Get the ID field value from the document (it could be int or float64)
+		idValue := doc.Data()["id"]
+		if idValue == nil {
+			// If idValue is nil, print the document data for debugging
+			fmt.Println("No ID found for document:", doc.Data())
+			continue // skip documents without an ID field
+		}
+
+		// Print the type of idValue for debugging purposes
+		fmt.Printf("ID type: %T, ID value: %v\n", idValue, idValue)
+
+		var idInt int
+		// Convert the idValue to an int, if possible
+		switch v := idValue.(type) {
+		case int:
+			idInt = v
+		case int64:
+			idInt = int(v) // converting int64 to int
+		case float64:
+			idInt = int(v) // converting float64 to int
+		default:
+			continue
+		}
+		if idInt > maxID {
+			maxID = idInt
+		}
+	}
+	return maxID + 1, nil
+}
+
+func GetBookByTitle(c *fiber.Ctx, client *firestore.Client, title string) (*models.Book, error) {
+	// Set up context for Firestore query
+	ctx := c.Context()
+
+	query := client.Collection("books").Where("title", "==", title).Limit(1) // Limit to 1 result
+
+	iter := query.Documents(ctx)
+	defer iter.Stop()
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			return nil, fmt.Errorf("Nie ma")
+		}
+		if err != nil {
+			return nil, fmt.Errorf(err.Error())
+		}
+
+		var book models.Book
+		if err := doc.DataTo(&book); err != nil {
+			return nil, fmt.Errorf(err.Error())
+		}
+		return &book, nil
+	}
+}
+
+func AddBook(c *fiber.Ctx, client *firestore.Client, book *models.Book) error {
+
+	// Validate Title
+	title := c.FormValue("title")
+	if strings.TrimSpace(title) == "" {
+		return fmt.Errorf("title is required")
+	}
+	book.Title = title
+
+	// Validate Author
+	author := c.FormValue("author")
+	authorRegex := `^[A-Za-zÀ-ÖØ-öø-ÿ]+(([' -][A-Za-zÀ-ÖØ-öø-ÿ]+)*)$`
+	matched, _ := regexp.MatchString(authorRegex, author)
+	if strings.TrimSpace(author) == "" || !matched {
+		return fmt.Errorf("please provide a valid author")
+	}
+	book.Author = author
+
+	// Validate Pages
+	pagesStr := c.FormValue("pages")
+	pages, err := strconv.Atoi(pagesStr)
+	if err != nil || pages <= 0 {
+		return fmt.Errorf("please provide a valid number of pages")
+	}
+	book.Pages = pages
+
+	// Get New ID
+	bookId, err := getNewIDForBook(c, client)
+	if err != nil {
+		return fmt.Errorf("failed to generate new book ID: %v", err)
+	}
+	book.Id = bookId
+
+	// Validate PublishedAt (Date)
+	publishedAt := c.FormValue("publishedAt")
+	const dateFormat = "2006-01-02"
+	parsedTime, err := time.Parse(dateFormat, publishedAt)
+	if err != nil {
+		return fmt.Errorf("failed to parse published date: %v", err)
+	}
+	book.PublishedAt = parsedTime
+
+	// Validate Description
+	description := c.FormValue("description")
+	if strings.TrimSpace(description) == "" {
+		return fmt.Errorf("description is required")
+	}
+	book.Description = description
+
+	// Validate Cover URL
+	coverLink := c.FormValue("coverLink")
+	if strings.TrimSpace(coverLink) == "" {
+		return fmt.Errorf("cover link is required")
+	}
+	book.Cover = coverLink
+
+	// Add the Book to Firestore
+	_, _, err = client.Collection("books").Add(context.Background(), book)
+	if err != nil {
+		return fmt.Errorf("failed to add book to Firestore: %v", err)
 	}
 
-	fmt.Println(book)
-	return nil
+	// Success message (optional, can be omitted for a clean API response)
+	// fmt.Println("Book added successfully:", book)
+
+	return nil // No error means success
 }

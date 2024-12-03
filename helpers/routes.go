@@ -29,4 +29,7 @@ func Routes(app *fiber.App) {
 		controllers.GetHistoryPage)
 
 	app.Get("/addBook", controllers.GetAddBookPage)
+	app.Post("/addBook", func(c *fiber.Ctx) error {
+		return controllers.AddNewBookToLibrary(c, initializers.Client)
+	})
 }
