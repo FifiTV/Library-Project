@@ -75,7 +75,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			})
 		}
 	} else if book == nil {
-		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
+		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Musisz dodać tę książkę do zbioru!",
 		})
 	}
@@ -83,7 +83,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	//Check the logic of this part
 	// if book.title is correct
 	if isNewBook && isBookExists > 0 {
-		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
+		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
 		})
 	}
@@ -109,7 +109,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	errABC := AddBookCopy(c, client, &bookCopy)
 	fmt.Println("Error: ", errABC)
 	if errABC != nil {
-		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
+		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": errABC.Error(),
 		})
 	}

@@ -20,12 +20,14 @@ func Render(name string, c *fiber.Ctx, data fiber.Map) error {
 
 	// Sprawdzenie czy jest zalogowany
 	isLoggedIn := IsLogged(c)
+	userRole, _ := getUserRole(c)
 
 	if data == nil {
 		data = fiber.Map{}
 	}
 	// Dodanie flagi isLoggedIn
 	data["isLoggedIn"] = isLoggedIn
+	data["userRole"] = userRole
 
 	return c.Render(name, data)
 }
