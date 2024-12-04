@@ -53,13 +53,13 @@ func RoleGuard(role int) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		actualRole, err := getUserRole(c)
 		if err != nil {
-			return c.Status(fiber.StatusForbidden).Render("errors/error", fiber.Map{
+			return Render("errors/error", c, fiber.Map{
 				"errorMessage": "Wystąpił błąd.",
 			})
 		}
 
 		if actualRole < role {
-			return c.Status(fiber.StatusForbidden).Render("errors/error", fiber.Map{
+			return Render("errors/error", c, fiber.Map{
 				"errorMessage": "Użytkownik nie ma dostępu do zasobu.",
 			})
 		}
