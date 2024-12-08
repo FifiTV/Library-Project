@@ -25,6 +25,14 @@ func GetAllBooks(c *fiber.Ctx) []models.Book {
 	searchYear := c.Query("year", "")
 	searchPublisher := c.Query("publisher", "")
 
+func GetAllBooks(c *fiber.Ctx) []models.Book {
+
+	searchTitle := c.Query("title", "")
+	searchAuthor := c.Query("author", "")
+	searchGenre := c.Query("genre", "")
+	searchYear := c.Query("year", "")
+	searchPublisher := c.Query("publisher", "")
+
 	// Reference the "books" collection
 	booksCollection := initializers.Client.Collection("books")
 	query := booksCollection.Query
@@ -237,25 +245,33 @@ func AddBook(c *fiber.Ctx, client *firestore.Client, book *models.Book) error {
 }
 
 func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
+	// Pobierz ID książki z parametrów
 	bookID, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid book ID: %v", err))
 	}
 
+	// Pobierz sesję użytkownika
 	sess, err := middleware.GetSession(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to retrieve session")
 	}
 
+	// Pobierz userID z sesji
 	userID, ok := sess.Get("userID").(int)
-	if !ok {
+	if !ok || userID == 0 {
 		return c.Status(fiber.StatusUnauthorized).SendString("User not logged in")
 	}
 
 	ctx := context.Background()
 
+	// Pobierz informacje o książce
 	book := GetOneBook(c, bookID)
+	if book.Id == 0 {
+		return c.Status(fiber.StatusNotFound).SendString("Book not found")
+	}
 
+	// Pobierz dostępne egzemplarze książki
 	bookCopies, err := GetCopiesOfBook(c, &book, true)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to retrieve book copies")
@@ -264,6 +280,7 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 		return c.Status(fiber.StatusConflict).SendString("No available copies")
 	}
 
+	// Jeśli książka jest dostępna, dodaj ją do kolejki
 	if bookCopies[0].Available {
 		_, _, err := client.Collection("approvalQueue").Add(ctx, map[string]interface{}{
 			"user_id":          userID,
@@ -273,6 +290,39 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString("Failed to add request to approvalQueue")
 		}
+
+		// Tworzenie powiadomienia dla użytkownika
+		err = CreateNotification(
+			fmt.Sprintf("%d", userID), // recipientId
+			book.Title,                // bookTitle
+			"Twoja prośba o wypożyczenie książki została wysłana.", // message
+			1,                        // role (użytkownik)
+			false,                    // status
+		)
+		if err != nil {
+			log.Printf("Error creating user notification: %v", err)
+		}
+
+		// Pobranie ID wszystkich bibliotekarzy
+		librarians, err := GetLibrarians(ctx, client)
+		if err != nil {
+			log.Printf("Error fetching librarians: %v", err)
+		}
+
+		// Tworzenie powiadomienia dla każdego bibliotekarza
+		for _, librarian := range librarians {
+			err = CreateNotification(
+				librarian,          // recipientId
+				book.Title,         // bookTitle
+				fmt.Sprintf("Nowa prośba o wypożyczenie książki: %s.", book.Title),
+				2,                  // role (bibliotekarz)
+				false,              // status
+			)
+			if err != nil {
+				log.Printf("Error creating librarian notification: %v", err)
+			}
+		}
+
 		log.Println("Entry added to approvalQueue successfully")
 	} else {
 		log.Println("The book is not available")

@@ -41,4 +41,6 @@ func Routes(app *fiber.App) {
 	app.Post("/bookdetails/:id", middleware.AuthGuard, func(c *fiber.Ctx) error {
 		return controllers.BorrowBook(c, initializers.Client)
 	})
+	app.Get("/notifications", controllers.FetchNotifications)
+	app.Get("/add-test-notifications", controllers.AddTestNotifications)
 }
