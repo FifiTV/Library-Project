@@ -244,39 +244,3 @@ footer nav ul li a:hover {
   color: #555;
   text-align: justify;
 }
-#notification-list {
-  display: block; /* Upewnia się, że lista powiadomień jest wyświetlana blokowo */
-  width: 100%; /* Dopasowanie szerokości do rodzica */
-}
-
-#notification-items {
-  list-style: none; /* Usunięcie domyślnych kropek z listy */
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column; /* Ustawienie pozycji pionowej */
-  gap: 0.5rem; /* Odstępy między powiadomieniami */
-}
-
-#notification-items li {
-  display: block; /* Każde powiadomienie jako blok */
-  background-color: #444; /* Tło powiadomienia */
-  padding: 0.75rem; /* Wewnętrzne odstępy */
-  border-radius: 6px; /* Zaokrąglone rogi */
-  border: 1px solid #555; /* Obramowanie */
-  color: white; /* Kolor tekstu */
-  transition: background-color 0.3s ease; /* Płynna zmiana koloru */
-}
-
-#notification-items li:hover {
-  background-color: #555; /* Podświetlenie na hover */
-}
-
-#notification-items .font-semibold {
-  font-size: 1rem; /* Rozmiar głównego tekstu powiadomienia */
-}
-
-#notification-items .text-sm {
-  font-size: 0.875rem; /* Mniejszy rozmiar dla dodatkowych informacji */
-  color: #bbb; /* Jaśniejszy kolor dla daty i innych detali */
-}

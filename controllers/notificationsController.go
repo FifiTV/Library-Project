@@ -55,7 +55,6 @@ func FetchNotifications(c *fiber.Ctx) error {
 		notifications = append(notifications, notification)
 	}
 
-	log.Printf("Returning notifications: %+v", notifications)
 	return c.JSON(notifications)
 }
 
@@ -81,7 +80,6 @@ func CreateNotification(recipientID, bookTitle, message string, role int, status
 		return err
 	}
 
-	log.Println("Notification created successfully.")
 	return nil
 }
 
