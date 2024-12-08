@@ -28,7 +28,17 @@ func Routes(app *fiber.App) {
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
 
-	app.Get("/addBook", controllers.GetAddBookPage)
-	app.Get("/notifications", controllers.FetchNotifications)
-	app.Get("/add-test-notifications", controllers.AddTestNotifications)
+	app.Get("/addBook", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.GetAddBookPage)
+	app.Post("/addBook",
+		middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		func(c *fiber.Ctx) error {
+			return controllers.AddNewBookToLibrary(c, initializers.Client)
+		})
+
+	app.Post("/bookdetails/:id", middleware.AuthGuard, func(c *fiber.Ctx) error {
+		return controllers.BorrowBook(c, initializers.Client)
+	})
 }

@@ -5,6 +5,8 @@ import "time"
 type Book struct {
 	Title       string    `firestore:"title"`
 	Author      string    `firestore:"author"`
+	Publisher   string    `firestore:"publisher"`
+	Genre       string    `firestore:"genre"`
 	Pages       int       `firestore:"pages"`
 	Id          int       `firestore:"id"`
 	Description string    `firestore:"description"`
