@@ -67,6 +67,30 @@ func GetCopiesOfBook(c *fiber.Ctx, b *models.Book, availability bool) ([]*models
 	return copies, nil
 }
 
+func GetCopyOfBook(c *fiber.Ctx, inventoryNumber int) models.BookCopy {
+	booksCopiesCollection := initializers.Client.Collection("bookCopies")
+
+	docs, err := booksCopiesCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+
+	}
+
+	var bookCopyReturn models.BookCopy
+
+	for _, doc := range docs {
+		var bookCopy models.BookCopy
+		if err := doc.DataTo(&bookCopy); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		if bookCopy.InventoryNumber == inventoryNumber {
+			bookCopyReturn = bookCopy
+		}
+	}
+
+	return bookCopyReturn
+}
+
 func ifInventoryNumberExist(c *fiber.Ctx, client *firestore.Client, inventoryNumber int) bool {
 	countQuery := client.Collection("booksCopies").
 		Where("inventory_number", "==", inventoryNumber).

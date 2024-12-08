@@ -7,8 +7,10 @@
     {{if .isLoggedIn}}
       {{ if ge .userRole 2 }}
           <li><a href="/addBook">Dodaj książkę</a></li>
+          <li><a href="/approvalQueue">Kziazki Kolejka</a></li>
+      {{ else }}
+          <li><a href="/history">Historia</a></li>
       {{ end }}
-      <li><a href="/history">Historia</a></li>
       <li><a href="/logout">Wyloguj się</a></li>
     {{else}}
       <li><a href="/login">Zaloguj się</a></li>

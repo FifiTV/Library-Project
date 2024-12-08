@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
 	"strconv"
@@ -107,5 +110,45 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 		})
 	}
 	return c.Redirect("/addBook")
+
+}
+
+func GetApprovalItems(c *fiber.Ctx) []models.ApprovalItem {
+	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+
+	docs, err := approvalQueueCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+	}
+
+	var approvalQueue []models.ApprovalQueue
+
+	for _, doc := range docs {
+		var approval models.ApprovalQueue
+		if err := doc.DataTo(&approval); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		approvalQueue = append(approvalQueue, approval)
+	}
+
+	var approvalItems []models.ApprovalItem
+
+	for _, item := range approvalQueue {
+		book := GetOneBook(c, item.BookID)
+		user := GetOneUser(c, item.UserID)
+		bookCopy := GetCopyOfBook(c, item.InventoryNumber)
+
+		approvalItem := models.ApprovalItem{
+			ApprovalQueue: item,
+			Book:          book,
+			BookCopy:      bookCopy,
+			User:          user,
+		}
+
+		approvalItems = append(approvalItems, approvalItem)
+	}
+
+	// Return borrowEvents in JSON format
+	return approvalItems
 
 }

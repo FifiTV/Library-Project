@@ -71,3 +71,27 @@ func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, erro
 	// Return the combined list
 	return borrowEventsWithBooks, nil
 }
+
+func GetOneUser(c *fiber.Ctx, userId int) models.User {
+	usersCollection := initializers.Client.Collection("users")
+
+	docs, err := usersCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+
+	}
+
+	var userReturn models.User
+
+	for _, doc := range docs {
+		var user models.User
+		if err := doc.DataTo(&user); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		if user.Id == userId {
+			userReturn = user
+		}
+	}
+
+	return userReturn
+}
