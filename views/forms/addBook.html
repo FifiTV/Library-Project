@@ -82,6 +82,21 @@
                             placeholder="Podaj wydawcę">
                     </div>
 
+                    <!-- Genres Section -->
+                    <div class="mt-6">
+                        <label class="block text-gray-700 font-medium mb-2">Gatunek</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            {{range .genres}}
+                            <div class="flex items-center">
+                                <input type="radio" id="genre-{{.Name}}" name="genre" value="{{.Name}}"
+                                    class="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-400" required>
+                                <label for="genre-{{.Name}}" class="ml-3 text-gray-700 font-medium">{{.Name}}</label>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+                    
+
                     <div class="md:col-span-2">
                         <label for="coverLink" class="block text-gray-700 font-medium mb-2">Link Do Okładki</label>
                         <input id="coverLink" name="coverLink" type="url"

@@ -23,8 +23,6 @@ func GetCountOfRecords(c *fiber.Ctx, client *firestore.Client, collection string
 	if err != nil {
 		return -1
 	}
-
-	fmt.Println("Agg: ", len(agg))
 	return len(agg)
 }
 
@@ -45,7 +43,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	book, _ := GetBookByTitle(c, client, title)
 
 	if isNewBook && isBookExists == 0 && book == nil {
-		var book models.Book
+		book = &models.Book{}
 		book.Title = title
 
 		author := c.FormValue("author")
@@ -65,21 +63,26 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 		desc := c.FormValue("description")
 		book.Description = desc
 
+		//Genre
+		genre := c.FormValue("genre")
+		book.Genre = genre
+
 		url := c.FormValue("coverLink")
 		book.Cover = url
 
-		err := AddBook(c, client, &book)
+		err := AddBook(c, client, book)
 		if err != nil {
 			return middleware.Render("forms/addBook", c, fiber.Map{
 				"errorMessage": "Wprowadź poprawne dane!",
 			})
 		}
 	} else if book == nil {
+		fmt.Println("Copy")
 		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Musisz dodać tę książkę do zbioru!",
 		})
 	}
-
+	fmt.Println("Copy")
 	//Check the logic of this part
 	// if book.title is correct
 	if isNewBook && isBookExists > 0 {
@@ -87,7 +90,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
 		})
 	}
-
+	fmt.Println("Copy")
 	// Add Copy
 	var bookCopy models.BookCopy
 

@@ -62,7 +62,10 @@ func GetBookDetailsPage(c *fiber.Ctx) error {
 }
 
 func GetAddBookPage(c *fiber.Ctx) error {
-	return middleware.Render("forms/addBook", c, fiber.Map{})
+	genres := GetGenres(c)
+	return middleware.Render("forms/addBook", c, fiber.Map{
+		"genres": genres,
+	})
 }
 
 func GetHistoryPage(c *fiber.Ctx) error {
