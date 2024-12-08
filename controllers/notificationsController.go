@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// FetchNotifications retrieves notifications for the logged-in user
+// Pobranie danych z sesji
 func FetchNotifications(c *fiber.Ctx) error {
 	sess, err := middleware.GetSession(c)
 	if err != nil {
@@ -36,9 +36,9 @@ func FetchNotifications(c *fiber.Ctx) error {
 	ctx := context.Background()
 	notifications := []models.Notification{}
 
-	// Pobierz powiadomienia z Firestore
+	// Pobranie powiadomień
 	snapshot, err := initializers.Client.Collection("notifications").
-		Where("recipientId", "==", fmt.Sprintf("%d", userID)). // Konwersja ID na string
+		Where("recipientId", "==", fmt.Sprintf("%d", userID)). 
 		OrderBy("timestamp", firestore.Desc).
 		Documents(ctx).GetAll()
 	if err != nil {
@@ -60,7 +60,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 }
 
 
-// CreateNotification creates a new notification
+// Tworzenie powiadomienia
 func CreateNotification(recipientID, bookTitle, message string, role int, status bool) error {
 	log.Printf("Creating notification for user: %s, book: %s", recipientID, bookTitle)
 
@@ -85,34 +85,33 @@ func CreateNotification(recipientID, bookTitle, message string, role int, status
 	return nil
 }
 
-// AddTestNotifications adds test notifications to Firestore
+// TEST POWIADOMIEŃ RĘCZNE DODANIE
 func AddTestNotifications(c *fiber.Ctx) error {
 	log.Println("Adding test notifications...")
 
 	ctx := context.Background()
 
-	// Example test data
 	testNotifications := []map[string]interface{}{
 		{
 			"recipientId": "5",
 			"bookTitle":   "Book A",
-			"message":     "Notification 1: You borrowed Book A.",
-			"role":        2,
+			"message":     "Poprosiłeś o wypożyczenie",
+			"role":        1,
 			"status":      false,
 			"timestamp":   firestore.ServerTimestamp,
 		},
 		{
 			"recipientId": "5",
 			"bookTitle":   "Book B",
-			"message":     "Notification 2: Return Book B.",
-			"role":        2,
+			"message":     "Prośba o zwrot książki",
+			"role":        1,
 			"status":      false,
 			"timestamp":   firestore.ServerTimestamp,
 		},
 		{
 			"recipientId": "5",
 			"bookTitle":   "Book C",
-			"message":     "Notification 3: You borrowed Book C.",
+			"message":     "Prośba o wypożyczenie",
 			"role":        2,
 			"status":      false,
 			"timestamp":   firestore.ServerTimestamp,

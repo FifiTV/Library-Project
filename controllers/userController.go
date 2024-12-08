@@ -7,7 +7,9 @@ import (
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
 
+	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
+	"google.golang.org/api/iterator"
 )
 
 func GetAllBorrowEvents(c *fiber.Ctx) []models.BorrowEvent {
@@ -70,4 +72,27 @@ func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, erro
 
 	// Return the combined list
 	return borrowEventsWithBooks, nil
+}
+func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, error) {
+	// Pobierz użytkowników z rolą "Librarian"
+	iter := client.Collection("users").Where("role", "==", 2).Documents(ctx)
+	defer iter.Stop()
+
+	var librarianIDs []string
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("Error fetching librarian: %v", err)
+			return nil, err
+		}
+
+		// Pobierz ID użytkownika
+		id := doc.Ref.ID
+		librarianIDs = append(librarianIDs, id)
+	}
+
+	return librarianIDs, nil
 }

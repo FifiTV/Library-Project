@@ -13,15 +13,15 @@
   <!-- Panel z listą powiadomień -->
   <div
     id="notification-list"
-    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-gray-800 shadow-lg rounded-lg p-4 text-white max-h-72 overflow-y-auto hidden group-hover:block"
+    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 shadow-lg rounded-lg p-4 text-white max-h-72 overflow-y-auto hidden mt-3"
+    style="background-color: #444"
   >
-    <!-- Nagłówek panelu -->
-    <h3 class="text-lg font-bold mb-2">Powiadomienia</h3>
-
     <!-- Lista powiadomień -->
-    <ul id="notification-items" class="space-y-2">
+    <ul id="notification-items" class="flex flex-col gap-2">
       {{if .Notifications}} {{range .Notifications}}
-      <li class="flex flex-col border-b border-gray-600 py-2">
+      <li
+        class="flex flex-col bg-gray-700 p-3 rounded-lg border border-gray-600"
+      >
         <span class="font-semibold">{{.Message}}</span>
         <span class="text-sm text-gray-400">Książka: {{.BookTitle}}</span>
       </li>
