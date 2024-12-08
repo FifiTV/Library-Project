@@ -25,14 +25,6 @@ func GetAllBooks(c *fiber.Ctx) []models.Book {
 	searchYear := c.Query("year", "")
 	searchPublisher := c.Query("publisher", "")
 
-func GetAllBooks(c *fiber.Ctx) []models.Book {
-
-	searchTitle := c.Query("title", "")
-	searchAuthor := c.Query("author", "")
-	searchGenre := c.Query("genre", "")
-	searchYear := c.Query("year", "")
-	searchPublisher := c.Query("publisher", "")
-
 	// Reference the "books" collection
 	booksCollection := initializers.Client.Collection("books")
 	query := booksCollection.Query
@@ -296,8 +288,8 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 			fmt.Sprintf("%d", userID), // recipientId
 			book.Title,                // bookTitle
 			"Twoja prośba o wypożyczenie książki została wysłana.", // message
-			1,                        // role (użytkownik)
-			false,                    // status
+			1,     // role (użytkownik)
+			false, // status
 		)
 		if err != nil {
 			log.Printf("Error creating user notification: %v", err)
@@ -312,11 +304,11 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 		// Tworzenie powiadomienia dla każdego bibliotekarza
 		for _, librarian := range librarians {
 			err = CreateNotification(
-				librarian,          // recipientId
-				book.Title,         // bookTitle
+				librarian,  // recipientId
+				book.Title, // bookTitle
 				fmt.Sprintf("Nowa prośba o wypożyczenie książki: %s.", book.Title),
-				2,                  // role (bibliotekarz)
-				false,              // status
+				2,     // role (bibliotekarz)
+				false, // status
 			)
 			if err != nil {
 				log.Printf("Error creating librarian notification: %v", err)
