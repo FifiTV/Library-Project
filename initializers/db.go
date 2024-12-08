@@ -10,18 +10,18 @@ import (
 	"google.golang.org/api/option"
 )
 
-var DB *firestore.Client
+var Client *firestore.Client
 
 func ConnectToDb(ctx context.Context) error {
 
-	opt := option.WithCredentialsFile("C:\\users\\mikol\\Documents\\bib\\keys\\serviceAcountKey.json")
+	opt := option.WithCredentialsFile("C:\\Users\\mikol\\Documents\\bib\\keys\\serviceAcountKey.json")
 
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		return fmt.Errorf("error initializing app: %v", err)
 	}
 
-	DB, err = app.Firestore(ctx)
+	Client, err = app.Firestore(ctx)
 	if err != nil {
 		return fmt.Errorf("error initializing Firestore: %v", err)
 	}

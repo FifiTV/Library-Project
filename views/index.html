@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+  <body>
+    {{template "header"}} {{template "menu" .}}
+    <!-- Tailwind-styled alert -->
+    {{if .loginMessage}}
+    <div
+      id="login-message"
+      class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mx-auto mt-6 w-11/12 md:w-1/2 shadow-md"
+      role="alert"
+    >
+      <strong class="font-bold">Sukces! </strong>
+      <span class="block sm:inline">{{.loginMessage}}</span>
+      <button
+        id="close-message"
+        class="absolute top-0 bottom-0 right-0 px-4 py-3 text-green-700 hover:text-green-900"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-6 w-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18 18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    {{end}} {{template "homePage"}} {{template "footer"}} {{template "scripts"}}
+  </body>
+</html>

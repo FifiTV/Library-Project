@@ -1,39 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Biblioteka</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <!--Google Fonts-->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Tailwind -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {{template "head_tmpl"}}
   </head>
 <body>
-    {{template "header"}} {{template "menu"}}
+    {{template "header"}} {{template "menu" .}}
 
-    <ul class="book-list">
-        {{range .Books}}
-        <a href="/bookdetails/{{.Id}}">
-        <li class="list-element">
-            <form>
-              <button class="button">Wypożycz</button>
-            </form>
-            <div class="title">{{.Title}}</div>
-            <div class="details">
-              <span>Author: {{.Author}}</span>
-              <span>Pages: {{.Pages}}</span>
-            </div>
-        </li>
-        </a>
-        {{end}}
-      </ul>
-      {{template "footer"}}
+    <form method="get" action="/booklist" class="flex flex-wrap items-center bg-gray-100 p-4 rounded-lg shadow-md space-x-4">
+        <div class="flex flex-col">
+            <label for="title" class="text-sm font-medium text-gray-700">Tytuł</label>
+            <input type="text" name="title" id="title" placeholder="Wyszukaj po tytule" value="{{.SearchTitle}}"
+                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+        </div>
+        <div class="flex flex-col">
+            <label for="author" class="text-sm font-medium text-gray-700">Autor</label>
+            <input type="text" name="author" id="author" placeholder="Wyszukaj po autorze" value="{{.SearchAuthor}}"
+                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+        </div>
+        <div class="flex flex-col">
+            <label for="publisher" class="text-sm font-medium text-gray-700">Wydawnictwo</label>
+            <input type="text" name="publisher" id="publisher" placeholder="Wyszukaj po wydawnictwie" value="{{.SearchPublisher}}"
+                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+        </div>
+        <div class="flex flex-col">
+            <label for="year" class="text-sm font-medium text-gray-700">Rok Wydania</label>
+            <input type="number" name="year" id="year" placeholder="Wyszukaj po roku wydania" min="1800" value="{{.SearchYear}}"
+                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+        </div>
+        <div class="flex flex-col">
+            <label for="genre" class="text-sm font-medium text-gray-700">Gatunek</label>
+            <select name="genre" id="genre"
+                class="px-4 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                <option value="" disabled {{if not .SearchGenre}}selected{{end}}>Wybierz gatunek</option>
+                <option value="Przygodowe" {{if eq .SearchGenre "Przygodowe"}}selected{{end}}>Przygodowe</option>
+                <option value="Historyczne" {{if eq .SearchGenre "Historyczne"}}selected{{end}}>Historyczne</option>
+                <option value="Romans" {{if eq .SearchGenre "Romans"}}selected{{end}}>Romans</option>
+                <option value="Kryminalne" {{if eq .SearchGenre "Kryminalne"}}selected{{end}}>Kryminalne</option>
+                <option value="Horror" {{if eq .SearchGenre "Horror"}}selected{{end}}>Horror</option>
+                <option value="Biografie" {{if eq .SearchGenre "Biografie"}}selected{{end}}>Biografie</option>
+                <option value="Komediowe" {{if eq .SearchGenre "Komediowe"}}selected{{end}}>Komediowe</option>
+            </select>
+        </div>
+
+        <div class="flex space-x-2">
+            <button type="submit"
+                class="px-6 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                Szukaj
+            </button>
+            <a href="/booklist"
+                class="px-6 py-2 text-blue-500 bg-white border border-blue-500 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                Pokaż wszystkie
+            </a>
+        </div>
+    </form>
+
+    <div class="container mx-auto px-4 py-6">
+        <ul class=" grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {{range .Books}}
+            <a href="/bookdetails/{{.Id}}" class="block">
+                <li class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <!-- Book Cover -->
+                    <div class="cover mb-4">
+                        <img src="{{.Cover}}" alt="{{.Title}} Cover" class="w-full h-72 object-cover rounded-md">
+                    </div>
+                    <!-- Book Title -->
+                    <div class="title text-xl font-semibold mb-3">{{.Title}}</div>
+                    <!-- Book Details (Author and Pages) -->
+                    <div class="text-base text-gray-700">
+                        <span class="block mb-1">Autor: {{.Author}}</span>
+                        <span>Ilość stron: {{.Pages}}</span>
+                    </div>
+                </li>
+            </a>
+            {{end}}
+        </ul>
+    </div>
+    {{template "footer"}}
+    {{template "scripts"}}
 </body>
 </html>
