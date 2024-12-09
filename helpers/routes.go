@@ -47,4 +47,12 @@ func Routes(app *fiber.App) {
 	})
 	app.Get("/notifications", controllers.FetchNotifications)
 	app.Get("/add-test-notifications", controllers.AddTestNotifications)
+
+	// Add here routes
+	//
+
+	// Handle 404 errors (Not Found)
+	app.Use(func(c *fiber.Ctx) error {
+		return controllers.GetError404Page(c)
+	})
 }
