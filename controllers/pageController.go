@@ -80,3 +80,12 @@ func GetHistoryPage(c *fiber.Ctx) error {
 		"BorrowEvents": borrowEventsWithBooks,
 	})
 }
+
+func GetApprovalQueuePage(c *fiber.Ctx) error {
+	approvalItems := GetApprovalItems(c)
+
+	return middleware.Render("approvalQueue", c, fiber.Map{
+		"Title":         "Kziazki Kolejka",
+		"ApprovalItems": approvalItems,
+	})
+}

@@ -28,6 +28,10 @@ func Routes(app *fiber.App) {
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
 
+	app.Get("/approvalQueue", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.User),
+		controllers.GetApprovalQueuePage)
+
 	app.Get("/addBook", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetAddBookPage)
