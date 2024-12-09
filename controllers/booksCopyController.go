@@ -81,7 +81,7 @@ func ifInventoryNumberExist(c *fiber.Ctx, client *firestore.Client, inventoryNum
 func AddBookCopy(c *fiber.Ctx, client *firestore.Client, bookCopy *models.BookCopy) error {
 	ifExist := ifInventoryNumberExist(c, client, bookCopy.InventoryNumber)
 
-	if !ifExist {
+	if ifExist {
 		return fmt.Errorf("Książka z tym numerem inwentarza już istnieje")
 	}
 
