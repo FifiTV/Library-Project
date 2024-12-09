@@ -7,14 +7,15 @@
     {{if .isLoggedIn}}
       {{ if ge .userRole 2 }}
           <li><a href="/addBook">Dodaj książkę</a></li>
-          <li><a href="/approvalQueue">Ksiązki Kolejka</a></li>
-      {{ else }}
+          <li><a href="/approvalQueue">Książki Kolejka</a></li>
           <li><a href="/history">Historia</a></li>
+          {{template "notifications" .}} 
       {{ end }}
       <li><a href="/logout">Wyloguj się</a></li>
     {{else}}
-    <li><a href="/login">Zaloguj się</a></li>
+      <li><a href="/login">Zaloguj się</a></li>
     {{end}}
+    
   </ul>
 </nav>
-{{template "scripts"}} {{end}}
+{{end}}
