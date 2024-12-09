@@ -606,20 +606,6 @@ footer nav ul li a:hover {
 
 /* Button styling */
 .book-list .button {
-<<<<<<< HEAD
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 1rem; /* Creates space between button and title */
-}
-
-.button:hover {
-    background-color: #0056b3;
-=======
   background-color: #007bff;
   color: #fff;
   border: none;
@@ -632,25 +618,10 @@ footer nav ul li a:hover {
 
 .button:hover {
   background-color: #0056b3;
->>>>>>> main
 }
 
 /* Adjusting title and details */
 .title {
-<<<<<<< HEAD
-    font-weight: bold;
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-}
-
-.details {
-    color: #555;
-    font-size: 1.1rem;  /* Make author and pages slightly bigger */
-    margin-top: 0.3rem;
-    display: flex;
-    flex-direction: column; /* Stack author and pages vertically */
-    gap: 0.3rem; 
-=======
   font-weight: bold;
   font-size: 1.3rem;
   margin-bottom: 0.5rem;
@@ -663,78 +634,10 @@ footer nav ul li a:hover {
   display: flex;
   flex-direction: column; /* Stack author and pages vertically */
   gap: 0.3rem; 
->>>>>>> main
 }
 
 /* Layout adjustments for list items */
 .book-list li > form {
-<<<<<<< HEAD
-    order: 1; /* Moves the button to the left */
-}
-.book-list li > div {
-    flex-grow: 1;
-}
-
-.list-element {
-  /* Initial background color (optional, you can set any default color) */
-  background-color: #fff;
-  transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.list-element:hover {
-  background-color: #b6b8ba;
-}
-
-.center-wrapper {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  height: 100vh; /* Take full viewport height */
-}
-
-.book-container {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  max-width: 800px;
-  overflow: hidden;
-  width: 100%; /* Ensure it's responsive */
-  padding: 20px; /* Optional padding */
-}
-
-.book-cover {
-  width: 300px;
-  height: auto;
-  object-fit: cover;
-}
-
-.book-details {
-  padding: 20px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.book-title {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.book-year {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.book-description {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: #555;
-}
-=======
   order: 1; /* Moves the button to the left */
 }
 .book-list li > div {
@@ -801,4 +704,3 @@ line-height: 1.5;
 color: #555;
 text-align: justify;
 }
->>>>>>> main
