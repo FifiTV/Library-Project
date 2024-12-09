@@ -3,14 +3,27 @@
   <head>
     {{template "head_tmpl"}}
   </head>
-<body class="bg-gray-100 font-sans leading-relaxed">
+<body class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen">
     {{template "header"}} {{template "menu" .}}
     <div class="max-w-6xl mx-auto p-6">
       <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
 
+      <div class="text-center mb-8 flex justify-center space-x-4">
+        <a 
+          href="?show_current=true"
+          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
+          Aktualnie wypożyczone
+        </a>
+        <a 
+          href="?show_current=false"
+          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
+          Wszystkie
+        </a>
+      </div>      
+
       <ul class="space-y-4">
           {{range .BorrowEvents}}
-              <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300">
+              <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-200 transition ease-in-out duration-300">
                   <div class="flex flex-col md:flex-row md:space-x-6">
                       <!-- Book details -->
                       <div class="flex-shrink-0">

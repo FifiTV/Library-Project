@@ -1,26 +1,31 @@
 {{define "footer"}}
-<footer>
-  <p>&copy; 2024 Projekt Biblioteka. Wszelkie prawa zastrzeżone.</p>
-  <nav>
-    <ul>
-      <li>
-        <a
-          href="https://www.termsfeed.com/live/74296f89-391d-4c6f-b41e-b027afb59052"
-          target="_blank"
-          >Polityka prywatności</a
-        >
-      </li>
-      <li><a href="#" id="contact-link">Kontakt</a></li>
-    </ul>
-  </nav>
+<footer class="bg-gray-800 text-white py-4 mt-auto">
+  <div class="container mx-auto text-center">
+    <p>&copy; 2024 Projekt Biblioteka. Wszelkie prawa zastrzeżone.</p>
+    <nav>
+      <ul class="flex justify-center space-x-4 mt-2">
+        <li>
+          <a
+            href="https://www.termsfeed.com/live/74296f89-391d-4c6f-b41e-b027afb59052"
+            target="_blank"
+            class="text-blue-300 hover:text-blue-500"
+            >Polityka prywatności</a
+          >
+        </li>
+        <li>
+          <a href="#" id="contact-link" class="text-blue-300 hover:text-blue-500">Kontakt</a>
+        </li>
+      </ul>
+    </nav>
 
-  <!--Kontakt-->
-  <div id="contact-popup" class="popup">
-    <div class="popup-content">
-      <span class="close-btn">&times;</span>
-      <h2>Kontakt</h2>
-      <p>Email: kontakt@biblioteka.pl</p>
-      <p>Telefon: +48 123 456 789</p>
+    <!--Kontakt-->
+    <div id="contact-popup" class="popup hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+      <div class="popup-content bg-white p-6 rounded shadow-lg relative">
+        <button class="close-btn absolute top-2 right-2 text-gray-500 hover:text-gray-700">&times;</button>
+        <h2 class="text-lg font-semibold mb-4">Kontakt</h2>
+        <p>Email: kontakt@biblioteka.pl</p>
+        <p>Telefon: +48 123 456 789</p>
+      </div>
     </div>
   </div>
 </footer>
