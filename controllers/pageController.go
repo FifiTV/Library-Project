@@ -69,8 +69,11 @@ func GetAddBookPage(c *fiber.Ctx) error {
 }
 
 func GetHistoryPage(c *fiber.Ctx) error {
+	// Check if the "show_current" query parameter is present
+	showCurrentOnly := c.Query("show_current") == "true"
+
 	// Get the filtered borrow events for the user along with the book details
-	borrowEventsWithBooks, err := GetAllBorrowEventsForUser(c)
+	borrowEventsWithBooks, err := GetAllBorrowEventsForUser(c, showCurrentOnly)
 	if err != nil {
 		return err
 	}

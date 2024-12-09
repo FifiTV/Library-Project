@@ -6,6 +6,7 @@ import (
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
@@ -37,7 +38,7 @@ func GetAllBorrowEvents(c *fiber.Ctx) []models.BorrowEvent {
 	return borrowEvents
 }
 
-func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, error) {
+func GetAllBorrowEventsForUser(c *fiber.Ctx, showCurrentOnly bool) ([]models.BorrowEventWithBook, error) {
 	// Get all borrow events for the user
 	borrowEvents := GetAllBorrowEvents(c)
 
@@ -49,8 +50,14 @@ func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, erro
 	var filteredBorrowEvents []models.BorrowEvent
 	for _, event := range borrowEvents {
 		if event.UserID == userID {
-			// Add matching events to the filtered list
-			filteredBorrowEvents = append(filteredBorrowEvents, event)
+			// Apply additional filtering if `showCurrentOnly` is true
+			if showCurrentOnly {
+				if event.BorrowEnd.After(time.Now()) {
+					filteredBorrowEvents = append(filteredBorrowEvents, event)
+				}
+			} else {
+				filteredBorrowEvents = append(filteredBorrowEvents, event)
+			}
 		}
 	}
 

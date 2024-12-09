@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (notifications.length === 0) {
         console.log("Brak nowych powiadomień.");
         notificationList.innerHTML = ` 
-          <li class="py-2 px-2 text-center text-gray-400" style="background-color: #333;">
+          <li class="py-2 px-2 text-center text-gray-400">
             Brak nowych powiadomień.
           </li>`;
         return;
