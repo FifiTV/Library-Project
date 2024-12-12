@@ -155,3 +155,88 @@ func GetApprovalItems(c *fiber.Ctx) []models.ApprovalItem {
 	return approvalItems
 
 }
+
+func ChangeStatus(c *fiber.Ctx) error {
+
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
+
+	newBorrowEvent := models.BorrowEvent{
+
+		UserID:          userID,
+		InventoryNumber: inventoryNumber,
+		BookID:          bookID,
+		BorrowStart:     time.Now(),
+		BorrowEnd:       time.Now().AddDate(0, 1, 0),
+	}
+
+	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: false,
+		},
+	}); err != nil {
+		return nil
+	}
+
+	_, _, err = borrowEventsCollection.Add(context.Background(), newBorrowEvent)
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
+		return nil
+	}
+
+	return c.Redirect("/approvalQueue")
+}
+
+func Cancel(c *fiber.Ctx) error {
+
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+
+	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+
+	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
+		return nil
+	}
+
+	return c.Redirect("/approvalQueue")
+}
