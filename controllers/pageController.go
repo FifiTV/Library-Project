@@ -88,7 +88,7 @@ func GetApprovalQueuePage(c *fiber.Ctx) error {
 	approvalItems := GetApprovalItems(c)
 
 	return middleware.Render("approvalQueue", c, fiber.Map{
-		"Title":         "Kziazki Kolejka",
+		"Title":         "Wypożyczenia do potwierdzenia",
 		"ApprovalItems": approvalItems,
 	})
 }

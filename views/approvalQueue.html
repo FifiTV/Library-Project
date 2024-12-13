@@ -3,7 +3,7 @@
   <head>
     {{template "head_tmpl"}}
   </head>
-<body class="bg-gray-100 font-sans leading-relaxed">
+<body class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen">
     {{template "header"}} {{template "menu" .}}
     <div class="max-w-6xl mx-auto p-6">
       <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
@@ -15,9 +15,9 @@
                       <!-- Book details -->
                       <div class="flex-shrink-0">
                           <div class="text-lg font-semibold text-gray-800">Tytuł: {{ .Book.Title }}</div>
-                          <div class="text-gray-600">Imię Wyporzyczającego: {{ .User.FirstName }}</div>
-                          <div class="text-gray-600">Nazwisko Wyporzyczającego: {{ .User.LastName }}</div>
-                          <div class="text-gray-600">Inventory Number: {{ .ApprovalQueue.InventoryNumber }}</div>
+                          <div class="text-gray-600">Imię Wypożyczającego: {{ .User.FirstName }}</div>
+                          <div class="text-gray-600">Nazwisko Wypożyczającego: {{ .User.LastName }}</div>
+                          <div class="text-gray-600">Numer inwentarza: {{ .ApprovalQueue.InventoryNumber }}</div>
                       </div>
                       <div class="flex-grow">
                         <div class="mt-4 md:mt-0 flex justify-end items-center space-x-2" style="transform: translateY(28px);">
