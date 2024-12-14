@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
@@ -104,6 +105,7 @@ func GetOneUser(c *fiber.Ctx, userId int) models.User {
 
 	return userReturn
 }
+
 func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, error) {
 	// Pobierz użytkowników z rolą "Librarian"
 	iter := client.Collection("users").Where("role", "==", 2).Documents(ctx)
@@ -126,4 +128,30 @@ func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, err
 	}
 
 	return librarianIDs, nil
+}
+
+func sendReminders(c *fiber.Ctx) error {
+	// Retrieve userID from session
+	// sess, _ := middleware.GetSession(c)
+	// userID := sess.Get("userID").(int)
+
+	// Get user
+	// user:= GetOneUser(c,userID)
+
+	// Get his borrowEvents
+	borrowEventsWithBooks, _ := GetAllBorrowEventsForUser(c, true)
+
+	var titlesDueSoon []models.Book
+	now := time.Now()
+
+	for _, item := range borrowEventsWithBooks {
+		if item.BorrowEvent.BorrowEnd.After(now) && item.BorrowEvent.BorrowEnd.Before(now.Add(7*24*time.Hour)) {
+			titlesDueSoon = append(titlesDueSoon, item.Book)
+		}
+	}
+
+	fmt.Println("Books due within 7 days:", titlesDueSoon)
+	// body :="You should return your books: ID"
+	// SendEmail(user.Email,"You have 7 days left to read your books",body)
+	return nil
 }

@@ -10,6 +10,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
+	"gopkg.in/gomail.v2"
 )
 
 // Pobranie danych z sesji
@@ -38,7 +39,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 
 	// Pobranie powiadomień
 	snapshot, err := initializers.Client.Collection("notifications").
-		Where("recipientId", "==", fmt.Sprintf("%d", userID)). 
+		Where("recipientId", "==", fmt.Sprintf("%d", userID)).
 		OrderBy("timestamp", firestore.Desc).
 		Documents(ctx).GetAll()
 	if err != nil {
@@ -57,7 +58,6 @@ func FetchNotifications(c *fiber.Ctx) error {
 
 	return c.JSON(notifications)
 }
-
 
 // Tworzenie powiadomienia
 func CreateNotification(recipientID, bookTitle, message string, role int, status bool) error {
@@ -131,4 +131,23 @@ func AddTestNotifications(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "Test notifications added successfully.",
 	})
+}
+
+// sendEmail sends an email using the SMTP configuration
+func SendEmail(to, subject, body string) error {
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", initializers.EmailConfig.SenderEmail)
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", body)
+
+	// Set up the dialer with SMTP credentials
+	d := gomail.NewDialer(initializers.EmailConfig.SMTPHost, initializers.EmailConfig.SMTPPort, initializers.EmailConfig.SenderEmail, initializers.EmailConfig.SenderPass)
+
+	// Send the email
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+	return nil
 }
