@@ -98,22 +98,6 @@ func AddTestNotifications(c *fiber.Ctx) error {
 			"status":      false,
 			"timestamp":   firestore.ServerTimestamp,
 		},
-		{
-			"recipientId": "5",
-			"bookTitle":   "Book B",
-			"message":     "Prośba o zwrot książki",
-			"role":        1,
-			"status":      false,
-			"timestamp":   firestore.ServerTimestamp,
-		},
-		{
-			"recipientId": "5",
-			"bookTitle":   "Book C",
-			"message":     "Prośba o wypożyczenie",
-			"role":        2,
-			"status":      false,
-			"timestamp":   firestore.ServerTimestamp,
-		},
 	}
 
 	for _, notification := range testNotifications {
