@@ -1,34 +1,28 @@
 {{define "notifications"}}
-<li class="relative group">
+<li class="relative group ">
   <!-- Napis Powiadomienia -->
-  <a
-    href="#"
-    id="notification-menu"
-    class="text-white px-4 py-2 hover:bg-gray-700 transition cursor-pointer"
-    style="background-color: #444"
-  >
-    Powiadomienia
+  <a href="#" id="notification-menu"
+    class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded cursor-pointer">
+    Powiadomienia &#128276;
   </a>
-
-  <!-- Panel z listą powiadomień -->
-  <div
-    id="notification-list"
-    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 shadow-lg rounded-lg p-4 text-white max-h-72 overflow-y-auto hidden mt-3"
-    style="background-color: #444"
-  >
-    <!-- Lista powiadomień -->
-    <ul id="notification-items" class="flex flex-col gap-2">
-      {{if .Notifications}} {{range .Notifications}}
-      <li
-        class="flex flex-col bg-gray-700 p-3 rounded-lg border border-gray-600"
-      >
-        <span class="font-semibold">{{.Message}}</span>
-        <span class="text-sm text-gray-400">Książka: {{.BookTitle}}</span>
-      </li>
-      {{end}} {{else}}
-      <li class="text-gray-400 text-center">Brak powiadomień</li>
+  {{ .Notifications }}
+  <!-- Notification List Panel -->
+  <div id="notification-list"
+    class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 shadow-lg rounded-lg p-4 bg-gray-700 text-white max-h-72 overflow-y-auto hidden group-hover:block">
+    <!-- Notification Items List -->
+    <ul id="notification-items" class="flex flex-col gap-3">
+      {{if .Notifications}} 
+        {{range .Notifications}}
+          <li class="flex flex-col bg-gray-700 p-4 rounded-lg border border-gray-600 hover:bg-gray-600 transition ease-in-out duration-300">
+            <span class="font-semibold">{{.Message}}</span>
+            <span class="text-sm text-gray-400">Książka: {{.BookTitle}}</span>
+          </li>
+        {{end}} 
+      {{else}}
+        <li class="text-gray-400 text-center">Brak powiadomień</li>
       {{end}}
     </ul>
   </div>
 </li>
-{{template "scripts"}} {{end}}
+{{template "scripts"}} 
+{{end}}

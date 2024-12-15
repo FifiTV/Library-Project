@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
 	"strconv"
@@ -23,8 +26,6 @@ func GetCountOfRecords(c *fiber.Ctx, client *firestore.Client, collection string
 	if err != nil {
 		return -1
 	}
-
-	fmt.Println("Agg: ", len(agg))
 	return len(agg)
 }
 
@@ -45,7 +46,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	book, _ := GetBookByTitle(c, client, title)
 
 	if isNewBook && isBookExists == 0 && book == nil {
-		var book models.Book
+		book = &models.Book{}
 		book.Title = title
 
 		author := c.FormValue("author")
@@ -65,21 +66,26 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 		desc := c.FormValue("description")
 		book.Description = desc
 
+		//Genre
+		genre := c.FormValue("genre")
+		book.Genre = genre
+
 		url := c.FormValue("coverLink")
 		book.Cover = url
 
-		err := AddBook(c, client, &book)
+		err := AddBook(c, client, book)
 		if err != nil {
 			return middleware.Render("forms/addBook", c, fiber.Map{
 				"errorMessage": "Wprowadź poprawne dane!",
 			})
 		}
 	} else if book == nil {
+		fmt.Println("Copy")
 		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Musisz dodać tę książkę do zbioru!",
 		})
 	}
-
+	fmt.Println("Copy")
 	//Check the logic of this part
 	// if book.title is correct
 	if isNewBook && isBookExists > 0 {
@@ -87,7 +93,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
 		})
 	}
-
+	fmt.Println("Copy")
 	// Add Copy
 	var bookCopy models.BookCopy
 
@@ -108,4 +114,129 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	}
 	return c.Redirect("/addBook")
 
+}
+
+func GetApprovalItems(c *fiber.Ctx) []models.ApprovalItem {
+	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+
+	docs, err := approvalQueueCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+	}
+
+	var approvalQueue []models.ApprovalQueue
+
+	for _, doc := range docs {
+		var approval models.ApprovalQueue
+		if err := doc.DataTo(&approval); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		approvalQueue = append(approvalQueue, approval)
+	}
+
+	var approvalItems []models.ApprovalItem
+
+	for _, item := range approvalQueue {
+		book := GetOneBook(c, item.BookID)
+		user := GetOneUser(c, item.UserID)
+		bookCopy := GetCopyOfBook(c, item.InventoryNumber)
+
+		approvalItem := models.ApprovalItem{
+			ApprovalQueue: item,
+			Book:          book,
+			BookCopy:      bookCopy,
+			User:          user,
+		}
+
+		approvalItems = append(approvalItems, approvalItem)
+	}
+
+	// Return borrowEvents in JSON format
+	return approvalItems
+
+}
+
+func ChangeStatus(c *fiber.Ctx) error {
+
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
+
+	newBorrowEvent := models.BorrowEvent{
+
+		UserID:          userID,
+		InventoryNumber: inventoryNumber,
+		BookID:          bookID,
+		BorrowStart:     time.Now(),
+		BorrowEnd:       time.Now().AddDate(0, 1, 0),
+	}
+
+	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: false,
+		},
+	}); err != nil {
+		return nil
+	}
+
+	_, _, err = borrowEventsCollection.Add(context.Background(), newBorrowEvent)
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
+		return nil
+	}
+
+	return c.Redirect("/approvalQueue")
+}
+
+func Cancel(c *fiber.Ctx) error {
+
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+
+	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+
+	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
+		return nil
+	}
+
+	return c.Redirect("/approvalQueue")
 }

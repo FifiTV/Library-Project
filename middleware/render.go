@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -18,17 +16,17 @@ import (
 func Render(name string, c *fiber.Ctx, data fiber.Map) error {
 	// Sprawdzenie czy jest zalogowany
 	isLoggedIn := IsLogged(c)
+	userRole, _ := getUserRole(c)
 
 	// Pobranie sesji użytkownika
 	sess, err := GetSession(c)
 	if err != nil {
-		log.Printf("Error fetching session: %v", err)
+		// log.Printf("Error fetching session: %v", err)
 		return c.Status(fiber.StatusInternalServerError).SendString("Session error")
 	}
 
 	// Pobranie danych z sesji
 	userID, _ := sess.Get("userID").(int)
-	userRole, _ := sess.Get("userRole").(int)
 
 	if data == nil {
 		data = fiber.Map{}
@@ -39,7 +37,7 @@ func Render(name string, c *fiber.Ctx, data fiber.Map) error {
 	data["userID"] = userID
 	data["userRole"] = userRole
 
-	log.Printf("Render called with userID: %d, userRole: %d, isLoggedIn: %v", userID, userRole, isLoggedIn)
+	// log.Printf("Render called with userID: %d, userRole: %d, isLoggedIn: %v", userID, userRole, isLoggedIn)
 
 	return c.Render(name, data)
 }

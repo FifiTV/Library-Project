@@ -272,8 +272,82 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 		return c.Status(fiber.StatusConflict).SendString("No available copies")
 	}
 
-	// Jeśli książka jest dostępna, dodaj ją do kolejki
-	if bookCopies[0].Available {
+	// Pobierz wszystkie dokumenty z kolekcji approvalQueue
+	approvalQueueDocs, err := client.Collection("approvalQueue").Documents(ctx).GetAll()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to retrieve approval queue")
+	}
+
+	// Stwórz mapę istniejących numerów inwentarzowych w approvalQueue
+	existingInventoryNumbers := make(map[int]bool)
+	for _, doc := range approvalQueueDocs {
+		data := doc.Data()
+		if inventoryNumber, ok := data["inventory_number"].(int64); ok {
+			existingInventoryNumbers[int(inventoryNumber)] = true
+		} else {
+			fmt.Printf("Skipping document with invalid or missing inventory_number: %+v\n", data)
+		}
+	}
+
+	// Znajdź pierwszy egzemplarz książki, którego numer inwentarzowy nie jest w kolejce
+	var selectedCopy *models.BookCopy
+	for _, copy := range bookCopies {
+		if !existingInventoryNumbers[copy.InventoryNumber] {
+			selectedCopy = copy
+			break
+		}
+	}
+	if selectedCopy == nil {
+		return c.Status(fiber.StatusConflict).SendString("No available copies not already in approval queue")
+	}
+
+	// Dodaj wybrany egzemplarz do kolejki
+	_, _, err = client.Collection("approvalQueue").Add(ctx, map[string]interface{}{
+		"user_id":          userID,
+		"book_id":          bookID,
+		"inventory_number": selectedCopy.InventoryNumber,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to add request to approvalQueue")
+	}
+
+	var doc *firestore.DocumentSnapshot
+
+	// Create the query
+	query := client.Collection("bookCopies").
+		Where("inventory_number", "==", selectedCopy.InventoryNumber).
+		Limit(1) // We expect only one document, so we limit the results to 1
+
+	// Execute the query
+	docs, err := query.Documents(ctx).GetAll()
+	if err != nil {
+		return fmt.Errorf("failed to get documents: %v", err)
+	}
+
+	// If no documents are found, return an error
+	if len(docs) == 0 {
+		return fmt.Errorf("no document found with inventory_number: %d", selectedCopy.InventoryNumber)
+	}
+
+	// Get the first document from the result (since we limited to 1)
+	doc = docs[0]
+
+	fmt.Printf("Document data: %+v\n", doc.Data())
+
+	// Zaktualizuj pole available dla wybranego egzemplarza książki
+	bookCopyDocRef := client.Collection("bookCopies").Doc(doc.Ref.ID) // Use the document ID of the selected copy
+	_, err = bookCopyDocRef.Update(ctx, []firestore.Update{
+		{
+			Path:  "available",
+			Value: false,
+		},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to update book copy availability")
+	}
+
+	// // Jeśli książka jest dostępna, dodaj ją do kolejki
+	if bookCopyDocRef != nil {
 		_, _, err := client.Collection("approvalQueue").Add(ctx, map[string]interface{}{
 			"user_id":          userID,
 			"book_id":          bookID,
@@ -288,8 +362,8 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 			fmt.Sprintf("%d", userID), // recipientId
 			book.Title,                // bookTitle
 			"Twoja prośba o wypożyczenie książki została wysłana.", // message
-			1,                        // role (użytkownik)
-			false,                    // status
+			1,     // role (użytkownik)
+			false, // status
 		)
 		if err != nil {
 			log.Printf("Error creating user notification: %v", err)
@@ -304,11 +378,11 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 		// Tworzenie powiadomienia dla każdego bibliotekarza
 		for _, librarian := range librarians {
 			err = CreateNotification(
-				librarian,          // recipientId
-				book.Title,         // bookTitle
+				librarian,  // recipientId
+				book.Title, // bookTitle
 				fmt.Sprintf("Nowa prośba o wypożyczenie książki: %s.", book.Title),
-				2,                  // role (bibliotekarz)
-				false,              // status
+				2,     // role (bibliotekarz)
+				false, // status
 			)
 			if err != nil {
 				log.Printf("Error creating librarian notification: %v", err)
@@ -322,7 +396,7 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 
 	return middleware.Render("bookdetails", c, fiber.Map{
 		"Book":                   book,
-		"NumberOfAvaliableBooks": len(bookCopies),
+		"NumberOfAvaliableBooks": len(bookCopies) - 1,
 		"successMessage":         "Wysłano prośbę o wypożyczenie!",
 	})
 }

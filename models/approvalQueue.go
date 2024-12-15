@@ -1,7 +1,7 @@
 package models
 
 type ApprovalQueue struct {
-	UserID          string `firestore:"user_id"`
-	BookID          string `firestore:"book_id"`
-	InventoryNumber string `firestore:"inventory_number"`
+	UserID          int `firestore:"user_id"`
+	BookID          int `firestore:"book_id"`
+	InventoryNumber int `firestore:"inventory_number"`
 }

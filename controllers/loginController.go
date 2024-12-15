@@ -51,6 +51,8 @@ func LoginHandler(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Could not save session.",
 		})
 	}
+	//Send reminder to back the books
+	sendReminders(c)
 
 	return c.Redirect("/")
 }

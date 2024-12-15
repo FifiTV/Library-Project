@@ -1,18 +1,23 @@
 {{define "menu"}}
-<nav class="menu">
-  <ul>
-    <li><a href="/">Strona główna</a></li>
-    <li><a href="/booklist">Lista książek</a></li>
-    <li><a href="#">O nas</a></li>
-    {{if .isLoggedIn}} {{ if ge .userRole 2 }}
-    <li><a href="/addBook">Dodaj książkę</a></li>
-    {{ end }}
-    <li><a href="/history">Historia</a></li>
-    {{if .isLoggedIn}} {{template "notifications" .}} {{end}}
-    <li><a href="/logout">Wyloguj się</a></li>
-    {{else}}
-    <li><a href="/login">Zaloguj się</a></li>
-    {{end}}
-  </ul>
+<nav class="bg-gray-700 text-white py-4">
+  <div class="container mx-auto flex justify-center">
+    <ul class="flex space-x-10">
+      <li><a href="/" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Strona główna</a></li>
+      <li><a href="/booklist" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Lista książek</a></li>
+      <li><a href="#" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">O nas</a></li>
+      {{if .isLoggedIn}}
+        {{if ge .userRole 2}}
+          <li><a href="/addBook" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Dodaj książkę</a></li>
+          <li><a href="/approvalQueue" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Kolejka zatwierdzeń</a></li>
+        {{end}}
+        <li><a href="/history" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Historia</a></li>
+        {{template "notifications" .}}
+        <li><a href="/logout" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Wyloguj się</a></li>
+      {{else}}
+        <li><a href="/login" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Zaloguj się</a></li>
+      {{end}}
+    </ul>
+  </div>
 </nav>
-{{template "scripts"}} {{end}}
+{{template "scripts"}}
+{{end}}

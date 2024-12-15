@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
@@ -37,7 +39,7 @@ func GetAllBorrowEvents(c *fiber.Ctx) []models.BorrowEvent {
 	return borrowEvents
 }
 
-func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, error) {
+func GetAllBorrowEventsForUser(c *fiber.Ctx, showCurrentOnly bool) ([]models.BorrowEventWithBook, error) {
 	// Get all borrow events for the user
 	borrowEvents := GetAllBorrowEvents(c)
 
@@ -49,8 +51,14 @@ func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, erro
 	var filteredBorrowEvents []models.BorrowEvent
 	for _, event := range borrowEvents {
 		if event.UserID == userID {
-			// Add matching events to the filtered list
-			filteredBorrowEvents = append(filteredBorrowEvents, event)
+			// Apply additional filtering if `showCurrentOnly` is true
+			if showCurrentOnly {
+				if event.BorrowEnd.After(time.Now()) {
+					filteredBorrowEvents = append(filteredBorrowEvents, event)
+				}
+			} else {
+				filteredBorrowEvents = append(filteredBorrowEvents, event)
+			}
 		}
 	}
 
@@ -73,6 +81,31 @@ func GetAllBorrowEventsForUser(c *fiber.Ctx) ([]models.BorrowEventWithBook, erro
 	// Return the combined list
 	return borrowEventsWithBooks, nil
 }
+
+func GetOneUser(c *fiber.Ctx, userId int) models.User {
+	usersCollection := initializers.Client.Collection("users")
+
+	docs, err := usersCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+
+	}
+
+	var userReturn models.User
+
+	for _, doc := range docs {
+		var user models.User
+		if err := doc.DataTo(&user); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		if user.Id == userId {
+			userReturn = user
+		}
+	}
+
+	return userReturn
+}
+
 func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, error) {
 	// Pobierz użytkowników z rolą "Librarian"
 	iter := client.Collection("users").Where("role", "==", 2).Documents(ctx)
@@ -95,4 +128,30 @@ func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, err
 	}
 
 	return librarianIDs, nil
+}
+
+func sendReminders(c *fiber.Ctx) error {
+	// Retrieve userID from session
+	// sess, _ := middleware.GetSession(c)
+	// userID := sess.Get("userID").(int)
+
+	// Get user
+	// user:= GetOneUser(c,userID)
+
+	// Get his borrowEvents
+	borrowEventsWithBooks, _ := GetAllBorrowEventsForUser(c, true)
+
+	var titlesDueSoon []models.Book
+	now := time.Now()
+
+	for _, item := range borrowEventsWithBooks {
+		if item.BorrowEvent.BorrowEnd.After(now) && item.BorrowEvent.BorrowEnd.Before(now.Add(7*24*time.Hour)) {
+			titlesDueSoon = append(titlesDueSoon, item.Book)
+		}
+	}
+
+	fmt.Println("Books due within 7 days:", titlesDueSoon)
+	// body :="You should return your books: ID"
+	// SendEmail(user.Email,"You have 7 days left to read your books",body)
+	return nil
 }

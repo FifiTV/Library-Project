@@ -55,12 +55,14 @@ func RoleGuard(role int) fiber.Handler {
 		if err != nil {
 			return Render("errors/error", c, fiber.Map{
 				"errorMessage": "Wystąpił błąd.",
+				"errorCode":    500,
 			})
 		}
 
 		if actualRole < role {
 			return Render("errors/error", c, fiber.Map{
 				"errorMessage": "Użytkownik nie ma dostępu do zasobu.",
+				"errorCode":    203,
 			})
 		}
 

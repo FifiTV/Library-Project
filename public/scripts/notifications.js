@@ -4,23 +4,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const notificationPanel = document.getElementById("notification-list");
   const userId = window.userId || "UNKNOWN";
 
-  console.log("notificationMenu:", notificationMenu);
-  console.log("notificationList:", notificationList);
-  console.log("notificationPanel:", notificationPanel);
+  // console.log("notificationMenu:", notificationMenu);
+  // console.log("notificationList:", notificationList);
+  // console.log("notificationPanel:", notificationPanel);
 
   if (!notificationMenu || !notificationList || !notificationPanel) {
-    console.error("Brak wymaganych elementów DOM dla powiadomień.");
+    // console.error("Brak wymaganych elementów DOM dla powiadomień.");
     return;
   }
 
   // Funkcja do pobierania powiadomień
   const fetchNotifications = async () => {
-    console.log("Rozpoczęto pobieranie powiadomień...");
-    console.log("Aktualne userId:", userId);
+    // console.log("Rozpoczęto pobieranie powiadomień...");
+    // console.log("Aktualne userId:", userId);
 
     try {
       const response = await fetch(`/notifications?userId=${userId}`);
-      console.log("Otrzymano odpowiedź z API:", response);
+      // console.log("Otrzymano odpowiedź z API:", response);
 
       if (!response.ok) {
         console.error(
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const notifications = await response.json();
-      console.log("Powiadomienia:", notifications);
+      // console.log("Powiadomienia:", notifications);
 
       // Wyczyść listę przed dodaniem nowych elementów
       notificationList.innerHTML = "";
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (notifications.length === 0) {
         console.log("Brak nowych powiadomień.");
         notificationList.innerHTML = ` 
-          <li class="py-2 px-2 text-center text-gray-400" style="background-color: #333;">
+          <li class="py-2 px-2 text-center text-gray-400">
             Brak nowych powiadomień.
           </li>`;
         return;
@@ -67,13 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Obsługa kliknięcia na menu powiadomień
   notificationMenu.addEventListener("click", (event) => {
     event.preventDefault();
-    console.log("Kliknięto na Powiadomienia");
+    // console.log("Kliknięto na Powiadomienia");
 
-    if (notificationPanel.classList.contains("hidden")) {
-      console.log("Otwieranie panelu powiadomień...");
-    } else {
-      console.log("Zamykanie panelu powiadomień...");
-    }
+    // if (notificationPanel.classList.contains("hidden")) {
+    //   console.log("Otwieranie panelu powiadomień...");
+    // } else {
+    //   console.log("Zamykanie panelu powiadomień...");
+    // }
 
     notificationPanel.classList.toggle("hidden");
     fetchNotifications(); // Pobierz powiadomienia przy każdym otwarciu
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
       !notificationPanel.contains(event.target) &&
       !notificationMenu.contains(event.target)
     ) {
-      console.log("Kliknięto poza panelem powiadomień. Zamykanie...");
+      // console.log("Kliknięto poza panelem powiadomień. Zamykanie...");
       notificationPanel.classList.add("hidden");
     }
   });

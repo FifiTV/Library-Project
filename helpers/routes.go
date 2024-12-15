@@ -28,6 +28,16 @@ func Routes(app *fiber.App) {
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
 
+	app.Get("/approvalQueue", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.GetApprovalQueuePage)
+	app.Post("/approvalQueue/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.ChangeStatus)
+	app.Post("/approvalQueue/:inventoryNumber", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.Cancel)
+
 	app.Get("/addBook", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetAddBookPage)
@@ -43,4 +53,12 @@ func Routes(app *fiber.App) {
 	})
 	app.Get("/notifications", controllers.FetchNotifications)
 	app.Get("/add-test-notifications", controllers.AddTestNotifications)
+
+	// Add here routes
+	//
+
+	// Handle 404 errors (Not Found)
+	app.Use(func(c *fiber.Ctx) error {
+		return controllers.GetError404Page(c)
+	})
 }

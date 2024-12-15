@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+<body class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen">
+    {{template "header"}} {{template "menu" .}}
+    <div class="max-w-6xl mx-auto p-6">
+      <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
+
+      <ul class="space-y-4">
+          {{range .ApprovalItems}}
+              <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300">
+                  <div class="flex flex-col md:flex-row md:space-x-6">
+                      <!-- Book details -->
+                      <div class="flex-shrink-0">
+                          <div class="text-lg font-semibold text-gray-800">Tytuł: {{ .Book.Title }}</div>
+                          <div class="text-gray-600">Imię Wypożyczającego: {{ .User.FirstName }}</div>
+                          <div class="text-gray-600">Nazwisko Wypożyczającego: {{ .User.LastName }}</div>
+                          <div class="text-gray-600">Numer inwentarza: {{ .ApprovalQueue.InventoryNumber }}</div>
+                      </div>
+                      <div class="flex-grow">
+                        <div class="mt-4 md:mt-0 flex justify-end items-center space-x-2" style="transform: translateY(28px);">
+                            <form method="POST" action="/approvalQueue/{{ .ApprovalQueue.InventoryNumber }}/{{ .Book.Id }}/{{ .User.Id}}">
+                                <button 
+                                    type="submit" 
+                                    class="bg-green-500 text-white font-medium px-4 py-2 rounded-md hover:bg-green-600 transition ease-in-out duration-200">
+                                    Potwierdź
+                                </button>
+                            </form>
+                            <form method="POST" action="/approvalQueue/{{ .ApprovalQueue.InventoryNumber }}">
+                                <button 
+                                    type="submit" 
+                                    class="bg-red-500 text-white font-medium px-4 py-2 rounded-md hover:bg-red-600 transition ease-in-out duration-200">
+                                    Odrzuć
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    
+                                                 
+                  </div>
+              </li>
+          {{end}}
+      </ul>
+  </div>
+      {{template "footer"}}
+      {{template "scripts"}}
+</body>
+</html>
