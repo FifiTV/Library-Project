@@ -38,7 +38,8 @@ func Routes(app *fiber.App) {
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.Cancel)
 
-	app.Get("/addBook", middleware.AuthGuard,
+	app.Get("/addBook",
+		middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetAddBookPage)
 	app.Post("/addBook",
@@ -54,6 +55,7 @@ func Routes(app *fiber.App) {
 	app.Get("/notifications", controllers.FetchNotifications)
 	app.Get("/add-test-notifications", controllers.AddTestNotifications)
 
+	app.Get("/api/next-inventory-number", controllers.GetNextInventoryNumber)
 	// Add here routes
 	//
 

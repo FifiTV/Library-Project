@@ -92,7 +92,7 @@ func GetCopyOfBook(c *fiber.Ctx, inventoryNumber int) models.BookCopy {
 }
 
 func ifInventoryNumberExist(c *fiber.Ctx, client *firestore.Client, inventoryNumber int) bool {
-	countQuery := client.Collection("booksCopies").
+	countQuery := client.Collection("bookCopies").
 		Where("inventory_number", "==", inventoryNumber).
 		Select() // No fields needed; we just need the count.
 
@@ -119,4 +119,52 @@ func AddBookCopy(c *fiber.Ctx, client *firestore.Client, bookCopy *models.BookCo
 	}
 
 	return nil
+}
+
+func getNextInventoryNumber(c *fiber.Ctx, client *firestore.Client) (int, error) {
+	// Query the collection, ordering by `inventory_number` in descending order
+	maxQuery := client.Collection("bookCopies").
+		OrderBy("inventory_number", firestore.Desc).
+		Limit(1)
+
+	// Execute the query
+	docIterator := maxQuery.Documents(c.Context())
+	defer docIterator.Stop()
+
+	// Fetch the first document
+	doc, err := docIterator.Next()
+	if err == iterator.Done {
+
+		return 1, nil
+	} else if err != nil {
+		// Handle other errors
+		return 0, err
+	}
+
+	// Parse the `inventory_number` field
+	var data map[string]interface{}
+	if err := doc.DataTo(&data); err != nil {
+		return 0, err
+	}
+
+	// Safely get `inventory_number` from the document
+	if inventoryNumber, ok := data["inventory_number"].(int64); ok {
+		return int(inventoryNumber) + 1, nil
+	}
+
+	return 0, fmt.Errorf("unable to parse inventory_number field")
+}
+
+func GetNextInventoryNumber(c *fiber.Ctx) error {
+	nextInventory, err := getNextInventoryNumber(c, initializers.Client)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch next inventory number",
+		})
+	}
+
+	// Respond with the next inventory number
+	return c.JSON(fiber.Map{
+		"next_inventory_number": nextInventory,
+	})
 }

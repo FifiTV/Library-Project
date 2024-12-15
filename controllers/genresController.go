@@ -10,7 +10,6 @@ import (
 
 func GetGenres(c *fiber.Ctx) *[]models.Genre {
 	var genres []models.Genre
-
 	query := initializers.Client.Collection("booksGenres")
 
 	iter := query.Documents(c.Context())
