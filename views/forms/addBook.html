@@ -5,7 +5,7 @@
     {{template "head_tmpl"}}
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen">
     {{template "header"}} {{template "menu" .}}
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
@@ -115,13 +115,14 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <div class="text-center">
-                        <button type="submit"
-                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            Dodaj
-                        </button>
-                    </div>
+                    
+                </div>
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        Dodaj
+                    </button>
                 </div>
             </form>
         </div>

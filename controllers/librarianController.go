@@ -85,7 +85,6 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Musisz dodać tę książkę do zbioru!",
 		})
 	}
-	fmt.Println("Copy")
 	//Check the logic of this part
 	// if book.title is correct
 	if isNewBook && isBookExists > 0 {
@@ -93,7 +92,6 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
 		})
 	}
-	fmt.Println("Copy")
 	// Add Copy
 	var bookCopy models.BookCopy
 
