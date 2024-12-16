@@ -21,14 +21,14 @@
                       </div>
                       <div class="flex-grow">
                         <div class="mt-4 md:mt-0 flex justify-end items-center space-x-2" style="transform: translateY(28px);">
-                            <form method="POST" action="/approvalQueue/{{ .ApprovalQueue.InventoryNumber }}/{{ .Book.Id }}/{{ .User.Id}}">
+                            <form method="POST" action="/approvalQueue/approved/{{ .ApprovalQueue.InventoryNumber }}/{{ .Book.Id }}/{{ .User.Id}}">
                                 <button 
                                     type="submit" 
                                     class="bg-green-500 text-white font-medium px-4 py-2 rounded-md hover:bg-green-600 transition ease-in-out duration-200">
                                     Potwierdź
                                 </button>
                             </form>
-                            <form method="POST" action="/approvalQueue/{{ .ApprovalQueue.InventoryNumber }}">
+                            <form method="POST" action="/approvalQueue/rejected/{{ .ApprovalQueue.InventoryNumber }}/{{ .Book.Id }}/{{ .User.Id}}">
                                 <button 
                                     type="submit" 
                                     class="bg-red-500 text-white font-medium px-4 py-2 rounded-md hover:bg-red-600 transition ease-in-out duration-200">

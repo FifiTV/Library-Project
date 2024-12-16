@@ -204,6 +204,18 @@ func ChangeStatus(c *fiber.Ctx) error {
 	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
 		return nil
 	}
+	bookTitle := GetOneBook(c, bookID).Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		bookTitle,
+		fmt.Sprintf("Twoja prośba o wypozyczenie książki: %s została zaakceptowana.", bookTitle),
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
+	}
 
 	return c.Redirect("/approvalQueue")
 }
@@ -214,10 +226,34 @@ func Cancel(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
 
 	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
 
 	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: true,
+		},
+	}); err != nil {
+		return nil
+	}
 
 	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
 	if err != nil {
@@ -226,6 +262,18 @@ func Cancel(c *fiber.Ctx) error {
 
 	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
 		return nil
+	}
+	bookTitle := GetOneBook(c, bookID).Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		bookTitle,
+		fmt.Sprintf("Twoja prośba o wypozyczenie książki: %s została odrzucona.", bookTitle),
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
 	}
 
 	return c.Redirect("/approvalQueue")

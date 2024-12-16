@@ -31,10 +31,10 @@ func Routes(app *fiber.App) {
 	app.Get("/approvalQueue", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetApprovalQueuePage)
-	app.Post("/approvalQueue/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
+	app.Post("/approvalQueue/approved/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.ChangeStatus)
-	app.Post("/approvalQueue/:inventoryNumber", middleware.AuthGuard,
+	app.Post("/approvalQueue/rejected/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.Cancel)
 
