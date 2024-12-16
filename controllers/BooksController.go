@@ -301,16 +301,6 @@ func BorrowBook(c *fiber.Ctx, client *firestore.Client) error {
 		return c.Status(fiber.StatusConflict).SendString("No available copies not already in approval queue")
 	}
 
-	// Dodaj wybrany egzemplarz do kolejki
-	_, _, err = client.Collection("approvalQueue").Add(ctx, map[string]interface{}{
-		"user_id":          userID,
-		"book_id":          bookID,
-		"inventory_number": selectedCopy.InventoryNumber,
-	})
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to add request to approvalQueue")
-	}
-
 	var doc *firestore.DocumentSnapshot
 
 	// Create the query
