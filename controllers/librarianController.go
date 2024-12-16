@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"

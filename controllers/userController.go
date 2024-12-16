@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
@@ -150,7 +149,7 @@ func sendReminders(c *fiber.Ctx) error {
 		}
 	}
 
-	fmt.Println("Books due within 7 days:", titlesDueSoon)
+	// fmt.Println("Books due within 7 days:", titlesDueSoon)
 	// body :="You should return your books: ID"
 	// SendEmail(user.Email,"You have 7 days left to read your books",body)
 	return nil
