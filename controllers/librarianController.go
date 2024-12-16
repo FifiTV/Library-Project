@@ -169,6 +169,7 @@ func ChangeStatus(c *fiber.Ctx) error {
 		BookID:          bookID,
 		BorrowStart:     time.Now(),
 		BorrowEnd:       time.Now().AddDate(0, 1, 0),
+		ExtendDate:      1,
 	}
 
 	approvalQueueCollection := initializers.Client.Collection("approvalQueue")

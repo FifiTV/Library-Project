@@ -6,6 +6,7 @@ import (
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -153,4 +154,47 @@ func sendReminders(c *fiber.Ctx) error {
 	// body :="You should return your books: ID"
 	// SendEmail(user.Email,"You have 7 days left to read your books",body)
 	return nil
+}
+
+func ExtendDate(c *fiber.Ctx) error {
+
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+
+	queryEvents := borrowEventsCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docEvents, err := queryEvents.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	var event models.BorrowEvent
+	if err := docEvents[0].DataTo(&event); err != nil {
+		log.Printf("Error decoding document: %v", err)
+	}
+
+	if event.ExtendDate != 0 {
+
+		newValue := event.ExtendDate - 1
+		newDate := event.BorrowEnd.AddDate(0, 0, 7)
+
+		if _, err = docEvents[0].Ref.Update(context.Background(), []firestore.Update{
+			{
+				Path:  "extend_date",
+				Value: newValue,
+			},
+			{
+				Path:  "borrow_end",
+				Value: newDate,
+			},
+		}); err != nil {
+			return nil
+		}
+	}
+
+	return c.Redirect("/history")
 }

@@ -27,6 +27,9 @@ func Routes(app *fiber.App) {
 	app.Get("/history", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
+	app.Post("/history/extendDate/:inventoryNumber", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.User),
+		controllers.ExtendDate)
 
 	app.Get("/approvalQueue", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
