@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"my-firebase-project/middleware"
+	"sort"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -77,6 +78,11 @@ func GetHistoryPage(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	// Sort borrowEventsWithBooks by the BorrowEnd field
+	sort.Slice(borrowEventsWithBooks, func(i, j int) bool {
+		return borrowEventsWithBooks[i].BorrowEvent.BorrowEnd.After(borrowEventsWithBooks[j].BorrowEvent.BorrowEnd)
+	})
 
 	return middleware.Render("history", c, fiber.Map{
 		"Title":        "Historia wypożyczeń",
