@@ -1,99 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    {{template "head_tmpl"}}
-    <script>
-      // JavaScript to toggle the visibility of the dropdown
-      function toggleDropdown() {
-        const dropdown = document.getElementById('approval-items');
-        dropdown.classList.toggle('hidden');
-      }
-    </script>
-  </head>
+
+<head>
+  {{template "head_tmpl"}}
+  <script>
+    // JavaScript to toggle the visibility of the dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('approval-items');
+      dropdown.classList.toggle('hidden');
+    }
+  </script>
+</head>
+
 <body class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen">
-    {{template "header"}} {{template "menu" .}}
-    <div class="max-w-7xl mx-auto p-6">
+  {{template "header"}} {{template "menu" .}}
+  <div class="max-w-7xl mx-auto p-6">
 
-      <!-- Approval Items Dropdown Button -->
-      <h1 class="text-4xl font-semibold text-center mb-8">Oczekujące</h1>
-      <div class="flex justify-center mb-4">
-        <button 
-          onclick="toggleDropdown()" 
-          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
-          Pokaż/Ukryj Oczekujące
-        </button>
-      </div>
+    <!-- Approval Items Dropdown Button -->
+    <h1 class="text-4xl font-semibold text-center mb-8">Oczekujące</h1>
+    <div class="flex justify-center mb-4">
+      <button onclick="toggleDropdown()"
+        class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
+        Pokaż/Ukryj oczekujące
+      </button>
+    </div>
 
-      <!-- Approval Items List (Dropdown) -->
-      <div id="approval-items" class="space-y-4 mb-8 hidden">
-        <ul class="list-none space-y-2">  <!-- Added space-y-2 here -->
-          {{range .ApprovalItems}}
-            <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300">
-              <div class="flex flex-col md:flex-row md:space-x-6">
-                <!-- Book details -->
-                <div class="flex-shrink-0">
-                  <div class="text-lg font-semibold text-gray-800">Tytuł: {{ .Book.Title }}</div>
-                  <div class="text-gray-600">Imię Wypożyczającego: {{ .User.FirstName }}</div>
-                  <div class="text-gray-600">Nazwisko Wypożyczającego: {{ .User.LastName }}</div>
-                  <div class="text-gray-600">Numer inwentarza: {{ .ApprovalQueue.InventoryNumber }}</div>
-                </div>
-              </div>
-            </li>
-          {{end}}
-        </ul>
-      </div>
-
-      <!-- Buttons Section -->
-      <div class="text-center mb-8 flex justify-center space-x-4">
-        <a 
-          href="?show_current=true"
-          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
-          Aktualnie wypożyczone
-        </a>
-        <a 
-          href="?show_current=false"
-          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
-          Wszystkie wypożyczone
-        </a>
-      </div>      
-      <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
-
-      <!-- Borrow Events List -->
-      <ul class="space-y-4">
-        {{range .BorrowEvents}}
-        <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-200 transition ease-in-out duration-300 w-full max-w-7xl mx-auto">
+    <!-- Approval Items List (Dropdown) -->
+    <div id="approval-items" class="space-y-4 mb-8 hidden">
+      <ul class="list-none space-y-2"> <!-- Added space-y-2 here -->
+        {{range .ApprovalItems}}
+        <li class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-50 transition ease-in-out duration-300">
           <div class="flex flex-col md:flex-row md:space-x-6">
             <!-- Book details -->
-            <div class="flex-shrink-0 w-full md:w-2/3">
-              <div class="text-lg font-semibold text-gray-800">Tytuł: {{.Book.Title}}</div>
-              <div class="text-gray-600">Autor: {{.Book.Author}}</div>
-              <div class="text-gray-600">Ilość stron: {{.Book.Pages}}</div>
-              <div class="text-gray-600">Rok wydania: {{.Book.PublishedAt.Year}}</div>
-            </div>
-        
-            <!-- Borrow event details -->
-            <div class="mt-4 md:mt-0 w-full md:w-1/3">
-              <div class="text-gray-600">Wypożyczono od dnia: {{.BorrowEvent.BorrowStart.Format "2006-01-02"}}</div>
-              <div class="text-gray-600">Wypożyczono do dnia: {{.BorrowEvent.BorrowEnd.Format "2006-01-02"}}</div>
-        
-              <form method="POST" action="/history/extendDate/{{.BorrowEvent.InventoryNumber}}" class="mt-4">
-                <button 
-                  type="submit" 
-                  class="{{if eq .BorrowEvent.ExtendDate 0}}bg-gray-400 cursor-not-allowed{{else}}bg-yellow-500 hover:bg-yellow-600{{end}}
-                          text-white font-semibold py-2 px-4 rounded shadow-lg transition ease-in-out duration-300"
-                  {{if eq .BorrowEvent.ExtendDate 0}}disabled{{end}}> 
-                  Przedłuż o 7 dni
-                </button>
-              </form>
+            <div class="flex-shrink-0">
+              <div class="text-lg font-semibold text-gray-800">Tytuł: {{ .Book.Title }}</div>
+              <div class="text-gray-600">Imię Wypożyczającego: {{ .User.FirstName }}</div>
+              <div class="text-gray-600">Nazwisko Wypożyczającego: {{ .User.LastName }}</div>
+              <div class="text-gray-600">Numer inwentarza: {{ .ApprovalQueue.InventoryNumber }}</div>
             </div>
           </div>
-        </li>          
-        {{else}}
-          <p class="text-center text-gray-500">Nie wypożyczyłeś żadnej książki.</p>
+        </li>
         {{end}}
       </ul>
     </div>
-    {{template "footer"}}
-    {{template "scripts"}}
+
+    <!-- Buttons Section -->
+    <div class="text-center mb-8 flex justify-center space-x-4">
+      <a href="?show_current=true"
+        class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
+        Aktualnie wypożyczone
+      </a>
+      <a href="?show_current=false"
+        class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition ease-in-out duration-300">
+        Wszystkie wypożyczone
+      </a>
+    </div>
+    <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
+
+    <!-- Borrow Events List -->
+    <ul class="space-y-4">
+      {{range .BorrowEvents}}
+      {{if lt .BorrowEvent.BorrowEnd.Unix $.CurrentTime.Unix}}
+      <li
+        class="bg-red-400 shadow-lg rounded-lg p-6 hover:bg-red-300 transition ease-in-out duration-300 w-full max-w-7xl mx-auto">
+        {{else}}
+      <li
+        class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-200 transition ease-in-out duration-300 w-full max-w-7xl mx-auto">
+        {{end}}
+        <div class="flex flex-col md:flex-row md:space-x-6">
+          <!-- Book details -->
+          <div class="flex-shrink-0 w-full md:w-2/3">
+            <div class="text-lg font-semibold text-gray-800">Tytuł: {{.Book.Title}}</div>
+            <div class="text-gray-600">Autor: {{.Book.Author}}</div>
+            <div class="text-gray-600">Ilość stron: {{.Book.Pages}}</div>
+            <div class="text-gray-600">Rok wydania: {{.Book.PublishedAt.Year}}</div>
+          </div>
+
+          <!-- Borrow event details -->
+          <div class="mt-4 md:mt-0 w-full md:w-1/3">
+            <div class="text-gray-600">Wypożyczono od dnia: {{.BorrowEvent.BorrowStart.Format "2006-01-02"}}</div>
+            <div class="text-gray-600">Wypożyczono do dnia: {{.BorrowEvent.BorrowEnd.Format "2006-01-02"}}</div>
+
+            <form method="POST" action="/history/extendDate/{{.BorrowEvent.InventoryNumber}}" class="mt-4">
+              <button type="submit" class="{{if eq .BorrowEvent.ExtendDate 0}}bg-gray-400 cursor-not-allowed{{else}}bg-yellow-500 hover:bg-yellow-600{{end}}
+                          text-white font-semibold py-2 px-4 rounded shadow-lg transition ease-in-out duration-300"
+                {{if eq .BorrowEvent.ExtendDate 0}}disabled{{end}}>
+                Przedłuż o 7d
+              </button>
+            </form>
+          </div>
+        </div>
+      </li>
+      {{else}}
+      <p class="text-center text-gray-500">Nie wypożyczyłeś żadnej książki.</p>
+      {{end}}
+    </ul>
+
+  </div>
+  {{template "footer"}}
+  {{template "scripts"}}
 </body>
+
 </html>
