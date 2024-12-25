@@ -1,0 +1,49 @@
+{{define "rateBook"}}
+<div class="flex justify-center items-center h-full mt-6">
+  <form action="/ratebook/{{.Book.Id}}" method="POST" class="flex flex-col gap-4 w-1/2">
+    <!-- Header -->
+    <h2 class=" font-bold text-gray-900 mb-2 text-center">Oceń tę książkę!</h2>
+
+    <!-- Rating Hearts as Images -->
+    <div class="rating-hearts flex items-center justify-center gap-3">
+      <label class="flex items-center">
+        <input type="radio" name="rating" value="1" class="hidden" onclick="updateHearts(1)">
+        <img data-index="1" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+      </label>
+      <label class="flex items-center">
+        <input type="radio" name="rating" value="2" class="hidden" onclick="updateHearts(2)">
+        <img data-index="2" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+      </label>
+      <label class="flex items-center">
+        <input type="radio" name="rating" value="3" class="hidden" onclick="updateHearts(3)">
+        <img data-index="3" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+      </label>
+      <label class="flex items-center">
+        <input type="radio" name="rating" value="4" class="hidden" onclick="updateHearts(4)">
+        <img data-index="4" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+      </label>
+      <label class="flex items-center">
+        <input type="radio" name="rating" value="5" class="hidden" onclick="updateHearts(5)">
+        <img data-index="5" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+      </label>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function updateHearts(rating) {
+  const hearts = document.querySelectorAll('.rating-hearts .heart');
+
+  hearts.forEach((heart, index) => {
+    if (index < rating) {
+      heart.src = '/assets/heart_filled.png';
+    } else if (index === rating) {
+      heart.src = '/assets/heart_unfilled.png';
+    } else {
+      heart.src = '/assets/heart_unfilled.png';
+    }
+  });
+}
+</script>
+{{end}}
