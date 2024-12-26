@@ -59,6 +59,8 @@ func Routes(app *fiber.App) {
 	app.Get("/add-test-notifications", controllers.AddTestNotifications)
 
 	app.Get("/api/next-inventory-number", controllers.GetNextInventoryNumber)
+	app.Post("/api/score-book/:user/:book", controllers.ScoreBook)
+	app.Get("/api/get-score-book/:user/:book", controllers.GetBookScore)
 	// Add here routes
 	//
 

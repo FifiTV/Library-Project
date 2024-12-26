@@ -1,49 +1,90 @@
 {{define "rateBook"}}
 <div class="flex justify-center items-center h-full mt-6">
-  <form action="/ratebook/{{.Book.Id}}" method="POST" class="flex flex-col gap-4 w-1/2">
+  <form onsubmit="return false;" class="flex flex-col gap-4 w-1/2">
     <!-- Header -->
-    <h2 class=" font-bold text-gray-900 mb-2 text-center">Oceń tę książkę!</h2>
+    <h2 class="font-bold text-gray-900 mb-2 text-center">Oceń tę książkę!</h2>
 
     <!-- Rating Hearts as Images -->
     <div class="rating-hearts flex items-center justify-center gap-3">
       <label class="flex items-center">
-        <input type="radio" name="rating" value="1" class="hidden" onclick="updateHearts(1)">
-        <img data-index="1" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+        <input type="radio" name="rating" value="1" class="hidden" onclick="submitRating(1)">
+        <img data-index="1" src="/assets/heart_unfilled.png" alt="Heart Unfilled"
+          class="w-6 h-6 heart hover:opacity-80 transition-opacity">
       </label>
       <label class="flex items-center">
-        <input type="radio" name="rating" value="2" class="hidden" onclick="updateHearts(2)">
-        <img data-index="2" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+        <input type="radio" name="rating" value="2" class="hidden" onclick="submitRating(2)">
+        <img data-index="2" src="/assets/heart_unfilled.png" alt="Heart Unfilled"
+          class="w-6 h-6 heart hover:opacity-80 transition-opacity">
       </label>
       <label class="flex items-center">
-        <input type="radio" name="rating" value="3" class="hidden" onclick="updateHearts(3)">
-        <img data-index="3" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+        <input type="radio" name="rating" value="3" class="hidden" onclick="submitRating(3)">
+        <img data-index="3" src="/assets/heart_unfilled.png" alt="Heart Unfilled"
+          class="w-6 h-6 heart hover:opacity-80 transition-opacity">
       </label>
       <label class="flex items-center">
-        <input type="radio" name="rating" value="4" class="hidden" onclick="updateHearts(4)">
-        <img data-index="4" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+        <input type="radio" name="rating" value="4" class="hidden" onclick="submitRating(4)">
+        <img data-index="4" src="/assets/heart_unfilled.png" alt="Heart Unfilled"
+          class="w-6 h-6 heart hover:opacity-80 transition-opacity">
       </label>
       <label class="flex items-center">
-        <input type="radio" name="rating" value="5" class="hidden" onclick="updateHearts(5)">
-        <img data-index="5" src="/assets/heart_unfilled.png" alt="Heart Unfilled" class="w-6 h-6 heart hover:opacity-80 transition-opacity">
+        <input type="radio" name="rating" value="5" class="hidden" onclick="submitRating(5)">
+        <img data-index="5" src="/assets/heart_unfilled.png" alt="Heart Unfilled"
+          class="w-6 h-6 heart hover:opacity-80 transition-opacity">
       </label>
     </div>
-
   </form>
 </div>
 
 <script>
-function updateHearts(rating) {
-  const hearts = document.querySelectorAll('.rating-hearts .heart');
+function submitRating(rating) {
+  const userId = "{{.userID}}";
+  const bookId = "{{.Book.Id}}";
+  const url = `/api/score-book/${userId}/${bookId}`;
 
+  // Update the hearts visuals
+  const hearts = document.querySelectorAll('.rating-hearts .heart');
   hearts.forEach((heart, index) => {
-    if (index < rating) {
-      heart.src = '/assets/heart_filled.png';
-    } else if (index === rating) {
-      heart.src = '/assets/heart_unfilled.png';
-    } else {
-      heart.src = '/assets/heart_unfilled.png';
-    }
+    heart.src = index < rating ? '/assets/heart_filled.png' : '/assets/heart_unfilled.png';
   });
+
+  // Create an XMLHttpRequest
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  // Handle the response
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        alert(`Dziękujemy za ocenienie {{.Book.Title}}! ❤️`);
+      } else {
+        console.error("Error submitting rating:", xhr.responseText);
+      }
+    }
+  };
+
+  const payload = JSON.stringify({ rating: rating });
+  xhr.send(payload);
 }
+
+window.onload = function() {
+    fetch(`/api/get-score-book/{{.userID}}/{{.Book.Id}}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const rating = data['data']['rating'];
+            // console.log("Fetched score:", rating);
+            const hearts = document.querySelectorAll('.rating-hearts .heart');
+            hearts.forEach((heart, index) => {
+                heart.src = index < rating ? '/assets/heart_filled.png' : '/assets/heart_unfilled.png';
+            });
+        })
+};
 </script>
+
 {{end}}

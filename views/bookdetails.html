@@ -53,7 +53,7 @@
           {{.Book.Description}}
         </p>
         {{if .isLoggedIn}}
-          {{template "rateBook"}}
+          {{template "rateBook" .}}
         {{end}}
       </div>
     </div>
