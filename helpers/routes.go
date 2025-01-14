@@ -27,18 +27,22 @@ func Routes(app *fiber.App) {
 	app.Get("/history", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
+	app.Post("/history/extendDate/:inventoryNumber", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.User),
+		controllers.ExtendDate)
 
 	app.Get("/approvalQueue", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetApprovalQueuePage)
-	app.Post("/approvalQueue/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
+	app.Post("/approvalQueue/approved/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.ChangeStatus)
-	app.Post("/approvalQueue/:inventoryNumber", middleware.AuthGuard,
+	app.Post("/approvalQueue/rejected/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.Cancel)
 
-	app.Get("/addBook", middleware.AuthGuard,
+	app.Get("/addBook",
+		middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetAddBookPage)
 	app.Post("/addBook",
@@ -54,6 +58,9 @@ func Routes(app *fiber.App) {
 	app.Get("/notifications", controllers.FetchNotifications)
 	app.Get("/add-test-notifications", controllers.AddTestNotifications)
 
+	app.Get("/api/next-inventory-number", controllers.GetNextInventoryNumber)
+	app.Post("/api/score-book/:user/:book", controllers.ScoreBook)
+	app.Get("/api/get-score-book/:user/:book", controllers.GetBookScore)
 	// Add here routes
 	//
 

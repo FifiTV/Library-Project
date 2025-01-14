@@ -30,27 +30,32 @@ func GetCountOfRecords(c *fiber.Ctx, client *firestore.Client, collection string
 }
 
 func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
-	// var book models.Book
-	// var bookCopy models.BookCopy
 	title := c.FormValue("title")
 	isNewBook := c.FormValue("newBook") == "on"
 	isBookExists := GetCountOfRecords(c, client, "books", "title", title)
-
 	if strings.TrimSpace(title) == "" {
-		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
+		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Proszę podać tytuł!",
+		})
+	}
+
+	if isBookExists == 0 {
+		return middleware.Render("forms/addBook", c, fiber.Map{
+			"errorMessage": "Książka z tym numerem już istnieje!",
 		})
 	}
 
 	title = strings.Title(title)
 	book, _ := GetBookByTitle(c, client, title)
 
-	if isNewBook && isBookExists == 0 && book == nil {
-		book = &models.Book{}
-		book.Title = title
-
-		author := c.FormValue("author")
-		book.Author = author
+	if isNewBook && book == nil {
+		book = &models.Book{
+			Title:       book.Title,
+			Author:      c.FormValue("author"),
+			Description: c.FormValue("description"),
+			Genre:       c.FormValue("genre"),
+			Cover:       c.FormValue("coverLink"),
+		}
 
 		pagess := c.FormValue("pages")
 		pages, _ := strconv.Atoi(pagess)
@@ -62,17 +67,6 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 		parsedTime, _ := time.Parse(dateFormat, publishedAt)
 		book.PublishedAt = parsedTime
 
-		// description
-		desc := c.FormValue("description")
-		book.Description = desc
-
-		//Genre
-		genre := c.FormValue("genre")
-		book.Genre = genre
-
-		url := c.FormValue("coverLink")
-		book.Cover = url
-
 		err := AddBook(c, client, book)
 		if err != nil {
 			return middleware.Render("forms/addBook", c, fiber.Map{
@@ -80,12 +74,10 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			})
 		}
 	} else if book == nil {
-		fmt.Println("Copy")
 		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Musisz dodać tę książkę do zbioru!",
 		})
 	}
-	fmt.Println("Copy")
 	//Check the logic of this part
 	// if book.title is correct
 	if isNewBook && isBookExists > 0 {
@@ -93,7 +85,6 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
 		})
 	}
-	fmt.Println("Copy")
 	// Add Copy
 	var bookCopy models.BookCopy
 
@@ -178,6 +169,7 @@ func ChangeStatus(c *fiber.Ctx) error {
 		BookID:          bookID,
 		BorrowStart:     time.Now(),
 		BorrowEnd:       time.Now().AddDate(0, 1, 0),
+		ExtendDate:      1,
 	}
 
 	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
@@ -214,6 +206,18 @@ func ChangeStatus(c *fiber.Ctx) error {
 	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
 		return nil
 	}
+	bookTitle := GetOneBook(c, bookID).Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		bookTitle,
+		fmt.Sprintf("Twoja prośba o wypozyczenie książki: %s została zaakceptowana.", bookTitle),
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
+	}
 
 	return c.Redirect("/approvalQueue")
 }
@@ -224,10 +228,34 @@ func Cancel(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
 
 	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
 
 	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: true,
+		},
+	}); err != nil {
+		return nil
+	}
 
 	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
 	if err != nil {
@@ -236,6 +264,18 @@ func Cancel(c *fiber.Ctx) error {
 
 	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
 		return nil
+	}
+	bookTitle := GetOneBook(c, bookID).Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		bookTitle,
+		fmt.Sprintf("Twoja prośba o wypozyczenie książki: %s została odrzucona.", bookTitle),
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
 	}
 
 	return c.Redirect("/approvalQueue")

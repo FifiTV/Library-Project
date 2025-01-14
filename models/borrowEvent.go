@@ -10,4 +10,5 @@ type BorrowEvent struct {
 	BookID          int       `firestore:"book_id"`
 	BorrowStart     time.Time `firestore:"borrow_start"`
 	BorrowEnd       time.Time `firestore:"borrow_end"`
+	ExtendDate      int       `firestore:"extend_date"`
 }

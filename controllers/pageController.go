@@ -3,7 +3,10 @@ package controllers
 import (
 	"fmt"
 	"my-firebase-project/middleware"
+	"my-firebase-project/models"
+	"sort"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -78,9 +81,21 @@ func GetHistoryPage(c *fiber.Ctx) error {
 		return err
 	}
 
+	// Sort borrowEventsWithBooks by the BorrowEnd field
+	sort.Slice(borrowEventsWithBooks, func(i, j int) bool {
+		return borrowEventsWithBooks[i].BorrowEvent.BorrowEnd.After(borrowEventsWithBooks[j].BorrowEvent.BorrowEnd)
+	})
+
+	now := time.Now()
+
+	// Get user's approval queue items
+	userApprovalItems := GetApprovalQueueItemsForUser(c)
+
 	return middleware.Render("history", c, fiber.Map{
-		"Title":        "Historia wypożyczeń",
-		"BorrowEvents": borrowEventsWithBooks,
+		"Title":         "Historia wypożyczeń",
+		"BorrowEvents":  borrowEventsWithBooks,
+		"CurrentTime":   now,
+		"ApprovalItems": userApprovalItems,
 	})
 }
 
@@ -91,4 +106,30 @@ func GetApprovalQueuePage(c *fiber.Ctx) error {
 		"Title":         "Wypożyczenia do potwierdzenia",
 		"ApprovalItems": approvalItems,
 	})
+}
+
+func GetApprovalQueueItemsForUser(c *fiber.Ctx) []models.ApprovalItem {
+	// Get the approval items to process
+	approvalItems := GetApprovalItems(c)
+
+	// Retrieve userID from session
+	sess, _ := middleware.GetSession(c)
+	userID := sess.Get("userID").(int)
+
+	// Get the user details from the database or any other data source
+	user := GetOneUser(c, userID)
+
+	// Create a new slice to store the items that match the user's ID
+	var userApprovalItems []models.ApprovalItem
+
+	// Iterate through each approval item and check if it belongs to the current user
+	for _, item := range approvalItems {
+		if item.User.Id == user.Id {
+			// If the user IDs match, add the item to the userApprovalItems collection
+			userApprovalItems = append(userApprovalItems, item)
+		}
+	}
+
+	// Return filtered approval items
+	return userApprovalItems
 }

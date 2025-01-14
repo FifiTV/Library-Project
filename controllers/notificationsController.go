@@ -32,7 +32,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Printf("Fetching notifications for userId: %d", userID)
+	// log.Printf("Fetching notifications for userId: %d", userID)
 
 	ctx := context.Background()
 	notifications := []models.Notification{}
@@ -43,7 +43,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 		OrderBy("timestamp", firestore.Desc).
 		Documents(ctx).GetAll()
 	if err != nil {
-		log.Printf("Error fetching notifications: %v", err)
+		// log.Printf("Error fetching notifications: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": fmt.Sprintf("Failed to fetch notifications: %v", err),
 		})
@@ -61,7 +61,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 
 // Tworzenie powiadomienia
 func CreateNotification(recipientID, bookTitle, message string, role int, status bool) error {
-	log.Printf("Creating notification for user: %s, book: %s", recipientID, bookTitle)
+	// log.Printf("Creating notification for user: %s, book: %s", recipientID, bookTitle)
 
 	ctx := context.Background()
 
@@ -95,6 +95,22 @@ func AddTestNotifications(c *fiber.Ctx) error {
 			"bookTitle":   "Book A",
 			"message":     "Poprosiłeś o wypożyczenie",
 			"role":        1,
+			"status":      false,
+			"timestamp":   firestore.ServerTimestamp,
+		},
+		{
+			"recipientId": "5",
+			"bookTitle":   "Book B",
+			"message":     "Prośba o zwrot książki",
+			"role":        1,
+			"status":      false,
+			"timestamp":   firestore.ServerTimestamp,
+		},
+		{
+			"recipientId": "5",
+			"bookTitle":   "Book C",
+			"message":     "Prośba o wypożyczenie",
+			"role":        2,
 			"status":      false,
 			"timestamp":   firestore.ServerTimestamp,
 		},

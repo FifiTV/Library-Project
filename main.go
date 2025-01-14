@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"my-firebase-project/controllers"
 	"my-firebase-project/helpers"
 	"my-firebase-project/initializers"
 
@@ -26,5 +25,5 @@ func main() {
 	app := helpers.CreateApp()
 	// localhost for remove a windowds defeder ask
 	app.Listen("localhost:" + os.Getenv("PORT"))
-	controllers.SendEmail("filip.fit1302@gmail.com", "Test", "Test body")
+	// controllers.SendEmail("", "Test", "Test body")
 }
