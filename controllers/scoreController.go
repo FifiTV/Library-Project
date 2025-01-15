@@ -105,9 +105,76 @@ func ScoreBook(c *fiber.Ctx) error {
 		return err
 	}
 
+	// sc, ll, _ := GetAvgScore(bookId)
+	UpdateBookAvgScore(bookId)
 	// Respond with success
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "Rating updated/added successfully",
 	})
+}
+
+func GetAvgScore(bookId int) (float64, int, error) {
+	client := initializers.Client
+
+	ratingsQuery := client.Collection("booksRatings").Where("bookId", "==", bookId)
+	ratingsDocs, err := ratingsQuery.Documents(context.Background()).GetAll()
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to fetch ratings: %v", err)
+	}
+
+	if len(ratingsDocs) == 0 {
+		return 0, 0, nil
+	}
+
+	var totalRatings int
+	for _, rDoc := range ratingsDocs {
+		var ratingData struct {
+			Rating int `firestore:"rating"`
+		}
+		if err := rDoc.DataTo(&ratingData); err != nil {
+			return 0, 0, fmt.Errorf("failed to parse rating data: %v", err)
+		}
+		totalRatings += ratingData.Rating
+	}
+
+	avgScore := float64(totalRatings) / float64(len(ratingsDocs))
+
+	return avgScore, len(ratingsDocs), nil
+}
+
+func UpdateBookAvgScore(bookId int) error {
+	client := initializers.Client
+
+	avgScore, count, err := GetAvgScore(bookId)
+	if err != nil {
+		return fmt.Errorf("failed to calculate avgScore: %v", err)
+	}
+
+	if count == 0 {
+		avgScore = 0
+	}
+
+	booksQuery := client.Collection("books").Where("id", "==", bookId).Limit(1)
+	booksDocs, err := booksQuery.Documents(context.Background()).GetAll()
+	if err != nil {
+		return fmt.Errorf("failed to fetch book with id %d: %v", bookId, err)
+	}
+
+	if len(booksDocs) == 0 {
+		return fmt.Errorf("book with id %d not found", bookId)
+	}
+
+	bookDocRef := booksDocs[0].Ref
+	_, err = bookDocRef.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "avg_score",
+			Value: avgScore,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update avgScore for book id %d: %v", bookId, err)
+	}
+
+	return nil
 }

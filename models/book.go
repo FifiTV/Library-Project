@@ -19,4 +19,5 @@ type Book struct {
 	Description string    `firestore:"description"`
 	Cover       string    `firestore:"cover"`
 	PublishedAt time.Time `firestore:"published_at"`
+	AvgScore    float64   `firestore:"avg_score"`
 }

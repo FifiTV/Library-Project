@@ -52,9 +52,9 @@
         <p class="book-description text-gray-700 mb-4">
           {{.Book.Description}}
         </p>
-        {{if .isLoggedIn}}
-          {{template "rateBook" .}}
-        {{end}}
+       
+          {{template "rating_book_part" .}}
+        
       </div>
     </div>
    

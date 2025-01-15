@@ -1,0 +1,13 @@
+{{define "rating_book_part"}}
+<div class="flex justify-center items-center mt-6 p-4 bg-white rounded-lg shadow-md">
+    {{if .isLoggedIn}}
+    <div class="flex-1 pr-4">
+        {{template "rateBook" .}}
+    </div>
+    {{end}}
+
+    <div class="flex-1 pl-4">
+        {{template "get_score_book" .}}
+    </div>
+</div>
+{{end}}
