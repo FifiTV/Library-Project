@@ -110,10 +110,12 @@ func GetApprovalQueuePage(c *fiber.Ctx) error {
 
 func GetBooksToReturnPage(c *fiber.Ctx) error {
 	booksToReturn := GetBooksToReturn(c)
+	now := time.Now()
 
 	return middleware.Render("booksToReturn", c, fiber.Map{
 		"Title":         "Książki w wypożyczeniu",
 		"BooksToReturn": booksToReturn,
+		"CurrentTime":   now,
 	})
 }
 
