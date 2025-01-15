@@ -2,22 +2,88 @@
 <nav class="bg-gray-700 text-white py-4">
   <div class="container mx-auto flex justify-center">
     <ul class="flex space-x-10">
-      <li><a href="/" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Strona główna</a></li>
-      <li><a href="/booklist" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Lista książek</a></li>
-      <li><a href="#" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">O nas</a></li>
-      {{if .isLoggedIn}}
-        {{if ge .userRole 2}}
-          <li><a href="/addBook" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Dodaj książkę</a></li>
-          <li><a href="/approvalQueue" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Kolejka zatwierdzeń</a></li>
-        {{end}}
-        <li><a href="/history" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Historia</a></li>
-        {{template "notifications" .}}
-        <li><a href="/logout" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Wyloguj się</a></li>
+      <li>
+        <a
+          href="/"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Strona główna</a
+        >
+      </li>
+      <li>
+        <a
+          href="/booklist"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Lista książek</a
+        >
+      </li>
+      <li>
+        <a
+          href="#"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >O nas</a
+        >
+      </li>
+      {{if .isLoggedIn}} {{if ge .userRole 2}}
+      <li>
+        <a
+          href="/addBook"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Dodaj książkę</a
+        >
+      </li>
+      <li>
+        <a
+          href="/approvalQueue"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Kolejka zatwierdzeń</a
+        >
+      </li>
+      {{end}}
+      <li>
+        <a
+          href="/history"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Historia</a
+        >
+      </li>
+      {{template "notifications" .}}
+      <li class="relative account-menu">
+        <a
+          href="#"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+        >
+          Konto
+        </a>
+        <ul
+          class="hidden absolute account-dropdown bg-gray-800 text-white mt-2 rounded shadow-lg py-2"
+        >
+          <li>
+            <a
+              href="/deleteAccount"
+              class="block px-4 py-2 text-red-500 hover:bg-red-600 hover:text-white"
+            >
+              Usuń konto
+            </a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a
+          href="/logout"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Wyloguj się</a
+        >
+      </li>
       {{else}}
-        <li><a href="/login" class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded">Zaloguj się</a></li>
+      <li>
+        <a
+          href="/login"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          >Zaloguj się</a
+        >
+      </li>
       {{end}}
     </ul>
   </div>
 </nav>
-{{template "scripts"}}
-{{end}}
+{{template "scripts"}} {{end}}
