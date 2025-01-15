@@ -178,6 +178,7 @@ func ChangeStatus(c *fiber.Ctx) error {
 		BookID:          bookID,
 		BorrowStart:     time.Now(),
 		BorrowEnd:       time.Now().AddDate(0, 1, 0),
+		ExtendDate:      1,
 	}
 
 	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
@@ -214,6 +215,18 @@ func ChangeStatus(c *fiber.Ctx) error {
 	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
 		return nil
 	}
+	bookTitle := GetOneBook(c, bookID).Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		bookTitle,
+		fmt.Sprintf("Twoja prośba o wypozyczenie książki: %s została zaakceptowana.", bookTitle),
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
+	}
 
 	return c.Redirect("/approvalQueue")
 }
@@ -224,10 +237,34 @@ func Cancel(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
 
 	approvalQueueCollection := initializers.Client.Collection("approvalQueue")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
 
 	queryApproval := approvalQueueCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: true,
+		},
+	}); err != nil {
+		return nil
+	}
 
 	docApproval, err := queryApproval.Documents(context.Background()).GetAll()
 	if err != nil {
@@ -237,6 +274,119 @@ func Cancel(c *fiber.Ctx) error {
 	if _, err = docApproval[0].Ref.Delete(context.Background()); err != nil {
 		return nil
 	}
+	bookTitle := GetOneBook(c, bookID).Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		bookTitle,
+		fmt.Sprintf("Twoja prośba o wypozyczenie książki: %s została odrzucona.", bookTitle),
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
+	}
 
 	return c.Redirect("/approvalQueue")
+}
+
+func GetBooksToReturn(c *fiber.Ctx) []models.ReturnBook {
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+
+	docs, err := borrowEventsCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	var borrowEvents []models.BorrowEvent
+
+	for _, doc := range docs {
+		var event models.BorrowEvent
+		if err := doc.DataTo(&event); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+
+		borrowEvents = append(borrowEvents, event)
+	}
+
+	var booksToReturn []models.ReturnBook
+
+	for _, item := range borrowEvents {
+		book := GetOneBook(c, item.BookID)
+		user := GetOneUser(c, item.UserID)
+		bookCopy := GetCopyOfBook(c, item.InventoryNumber)
+
+		bookToReturn := models.ReturnBook{
+			BorrowEvent: item,
+			Book:        book,
+			BookCopy:    bookCopy,
+			User:        user,
+		}
+
+		booksToReturn = append(booksToReturn, bookToReturn)
+	}
+
+	return booksToReturn
+
+}
+
+func BookReturned(c *fiber.Ctx) error {
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
+
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
+
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: true,
+		},
+	}); err != nil {
+		return nil
+	}
+
+	queryEvents := borrowEventsCollection.Where("inventory_number", "==", inventoryNumber)
+
+	docEvents, err := queryEvents.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docEvents[0].Ref.Delete(context.Background()); err != nil {
+		return nil
+	}
+
+	book := GetOneBook(c, bookID)
+	message := "Dziękujemy za oddanie książki " + book.Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		book.Title,
+		message,
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
+	}
+
+	return c.Redirect("/booksToReturn")
 }

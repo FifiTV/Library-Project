@@ -27,6 +27,9 @@ func Routes(app *fiber.App) {
 	app.Get("/history", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
+	app.Post("/history/extendDate/:inventoryNumber", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.User),
+		controllers.ExtendDate)
 
 	app.Get("/approvalQueue", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
@@ -37,6 +40,13 @@ func Routes(app *fiber.App) {
 	app.Post("/approvalQueue/rejected/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.Cancel)
+
+	app.Get("/booksToReturn", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.GetBooksToReturnPage)
+	app.Post("/booksToReturn/returned/:inventoryNumber/:bookID/:userID", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.BookReturned)
 
 	app.Get("/addBook",
 		middleware.AuthGuard,
@@ -56,6 +66,8 @@ func Routes(app *fiber.App) {
 	app.Get("/add-test-notifications", controllers.AddTestNotifications)
 
 	app.Get("/api/next-inventory-number", controllers.GetNextInventoryNumber)
+	app.Post("/api/score-book/:user/:book", controllers.ScoreBook)
+	app.Get("/api/get-score-book/:user/:book", controllers.GetBookScore)
 	// Add here routes
 	//
 
