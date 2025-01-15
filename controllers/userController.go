@@ -198,3 +198,76 @@ func ExtendDate(c *fiber.Ctx) error {
 
 	return c.Redirect("/history")
 }
+func DeleteAccount(c *fiber.Ctx) error {
+    // Pobierz e-mail z formularza
+    email := c.FormValue("email")
+    log.Printf("Podany e-mail: %s", email)
+
+    // Sprawdź, czy e-mail został podany
+    if email == "" {
+        log.Println("Błąd: Nie podano e-maila")
+        return c.Status(fiber.StatusBadRequest).Render("deleteAccount", fiber.Map{
+            "errorMessage": "Proszę podać adres e-mail!",
+        })
+    }
+
+    // Pobierz dane użytkownika z sesji
+    sess, err := middleware.GetSession(c)
+    if err != nil {
+        log.Printf("Błąd pobierania sesji: %v", err)
+        return c.Status(fiber.StatusInternalServerError).Render("deleteAccount", fiber.Map{
+            "errorMessage": "Nie udało się pobrać danych sesji. Spróbuj ponownie później.",
+        })
+    }
+
+    loggedInEmail, ok := sess.Get("email").(string)
+    log.Printf("E-mail z sesji: %s", loggedInEmail)
+    if !ok || loggedInEmail == "" {
+        log.Println("Błąd: E-mail w sesji jest pusty")
+        return c.Status(fiber.StatusUnauthorized).Render("deleteAccount", fiber.Map{
+            "errorMessage": "Nie jesteś zalogowany. Zaloguj się, aby usunąć swoje konto.",
+        })
+    }
+
+    // Porównaj podany e-mail z zalogowanym
+    if email != loggedInEmail {
+        log.Printf("Błąd: Podany e-mail (%s) różni się od zalogowanego (%s)", email, loggedInEmail)
+        log.Println("Sesja NIE została zniszczona. Użytkownik pozostaje zalogowany.")
+        return c.Render("deleteAccount", fiber.Map{
+            "errorMessage": "Podany adres e-mail nie pasuje do zalogowanego użytkownika. Spróbuj ponownie.",
+        })
+    }
+
+    // Pobierz użytkownika z Firestore na podstawie e-maila
+    userDocs, err := initializers.Client.Collection("users").Where("email", "==", email).Documents(c.Context()).GetAll()
+    if err != nil || len(userDocs) == 0 {
+        log.Printf("Błąd: Nie znaleziono użytkownika w Firestore z e-mailem: %s", email)
+        return c.Render("deleteAccount", fiber.Map{
+            "errorMessage": "Nie znaleziono konta z tym adresem e-mail.",
+        })
+    }
+
+    // Usuń konto użytkownika
+    if _, err := userDocs[0].Ref.Delete(c.Context()); err != nil {
+        log.Printf("Błąd: Nie udało się usunąć użytkownika z Firestore: %v", err)
+        return c.Render("deleteAccount", fiber.Map{
+            "errorMessage": "Wystąpił błąd podczas usuwania konta.",
+        })
+    }
+
+    // Usuń sesję użytkownika tylko po poprawnym usunięciu konta
+    if err := sess.Destroy(); err != nil {
+        log.Printf("Błąd podczas niszczenia sesji: %v", err)
+        return c.Status(fiber.StatusInternalServerError).Render("deleteAccount", fiber.Map{
+            "errorMessage": "Wystąpił błąd podczas usuwania sesji. Konto zostało usunięte.",
+        })
+    }
+
+    log.Println("Konto zostało pomyślnie usunięte.")
+    return c.Redirect("/")
+}
+
+
+
+
+

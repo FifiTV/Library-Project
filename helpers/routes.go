@@ -63,6 +63,10 @@ func Routes(app *fiber.App) {
 	app.Get("/api/get-score-book/:user/:book", controllers.GetBookScore)
 	// Add here routes
 	//
+	app.Get("/deleteAccount", func(c *fiber.Ctx) error {
+        return middleware.Render("deleteAccount", c, fiber.Map{})
+    })
+    app.Post("/deleteAccount", controllers.DeleteAccount)
 
 	// Handle 404 errors (Not Found)
 	app.Use(func(c *fiber.Ctx) error {

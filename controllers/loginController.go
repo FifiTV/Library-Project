@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
 
@@ -53,8 +54,10 @@ func LoginHandler(c *fiber.Ctx, client *firestore.Client) error {
 	}
 	//Send reminder to back the books
 	sendReminders(c)
+	log.Printf("Tworzenie sesji: email=%s, userID=%d, userRole=%d", storedUser.Email, storedUser.Id, storedUser.Role)
 
 	return c.Redirect("/")
+	
 }
 
 func LogoutHandler(c *fiber.Ctx) error {
