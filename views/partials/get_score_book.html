@@ -1,0 +1,16 @@
+{{define "get_score_book"}}
+<div class="avg-score-section text-center">
+    <h3 class="text-lg font-bold text-gray-800">Średnia ocena książki</h3>
+    {{if .Book.AvgScore}}
+    <p class="text-gray-600 flex items-center justify-center gap-2 mt-3">
+        Średnia ocena:
+        <span class="font-semibold text-gray-900 flex items-center">
+            {{printf "%.1f" .Book.AvgScore}}
+            <img src="/assets/heart_filled.png" alt="Heart" class="w-4 h-4 ml-1">
+        </span>
+    </p>
+    {{else}}
+    <p class="text-gray-600 italic">Brak ocen dla tej książki. Oceń jako pierwszy!</p>
+    {{end}}
+</div>
+{{end}}
