@@ -62,7 +62,7 @@
       {{range .BorrowEvents}}
       {{if lt .BorrowEvent.BorrowEnd.Unix $.CurrentTime.Unix}}
       <li
-        class="bg-red-400 shadow-lg rounded-lg p-6 hover:bg-red-300 transition ease-in-out duration-300 w-full max-w-7xl mx-auto">
+        class="bg-grey-400 shadow-lg rounded-lg p-6 hover:bg-grey-300 transition ease-in-out duration-300 w-full max-w-7xl mx-auto">
         {{else}}
       <li
         class="bg-white shadow-lg rounded-lg p-6 hover:bg-gray-200 transition ease-in-out duration-300 w-full max-w-7xl mx-auto">

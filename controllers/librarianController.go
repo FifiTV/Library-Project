@@ -30,32 +30,27 @@ func GetCountOfRecords(c *fiber.Ctx, client *firestore.Client, collection string
 }
 
 func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
+	// var book models.Book
+	// var bookCopy models.BookCopy
 	title := c.FormValue("title")
 	isNewBook := c.FormValue("newBook") == "on"
 	isBookExists := GetCountOfRecords(c, client, "books", "title", title)
-	if strings.TrimSpace(title) == "" {
-		return middleware.Render("forms/addBook", c, fiber.Map{
-			"errorMessage": "Proszę podać tytuł!",
-		})
-	}
 
-	if isBookExists == 0 {
-		return middleware.Render("forms/addBook", c, fiber.Map{
-			"errorMessage": "Książka z tym numerem już istnieje!",
+	if strings.TrimSpace(title) == "" {
+		return c.Status(fiber.StatusBadRequest).Render("forms/addBook", fiber.Map{
+			"errorMessage": "Proszę podać tytuł!",
 		})
 	}
 
 	title = strings.Title(title)
 	book, _ := GetBookByTitle(c, client, title)
 
-	if isNewBook && book == nil {
-		book = &models.Book{
-			Title:       book.Title,
-			Author:      c.FormValue("author"),
-			Description: c.FormValue("description"),
-			Genre:       c.FormValue("genre"),
-			Cover:       c.FormValue("coverLink"),
-		}
+	if isNewBook && isBookExists == 0 && book == nil {
+		book = &models.Book{}
+		book.Title = title
+
+		author := c.FormValue("author")
+		book.Author = author
 
 		pagess := c.FormValue("pages")
 		pages, _ := strconv.Atoi(pagess)
@@ -67,6 +62,17 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 		parsedTime, _ := time.Parse(dateFormat, publishedAt)
 		book.PublishedAt = parsedTime
 
+		// description
+		desc := c.FormValue("description")
+		book.Description = desc
+
+		//Genre
+		genre := c.FormValue("genre")
+		book.Genre = genre
+
+		url := c.FormValue("coverLink")
+		book.Cover = url
+
 		err := AddBook(c, client, book)
 		if err != nil {
 			return middleware.Render("forms/addBook", c, fiber.Map{
@@ -74,10 +80,12 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			})
 		}
 	} else if book == nil {
+		fmt.Println("Copy")
 		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Musisz dodać tę książkę do zbioru!",
 		})
 	}
+	fmt.Println("Copy")
 	//Check the logic of this part
 	// if book.title is correct
 	if isNewBook && isBookExists > 0 {
@@ -85,6 +93,7 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
 		})
 	}
+	fmt.Println("Copy")
 	// Add Copy
 	var bookCopy models.BookCopy
 
@@ -279,4 +288,105 @@ func Cancel(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect("/approvalQueue")
+}
+
+func GetBooksToReturn(c *fiber.Ctx) []models.ReturnBook {
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+
+	docs, err := borrowEventsCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	var borrowEvents []models.BorrowEvent
+
+	for _, doc := range docs {
+		var event models.BorrowEvent
+		if err := doc.DataTo(&event); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+
+		borrowEvents = append(borrowEvents, event)
+	}
+
+	var booksToReturn []models.ReturnBook
+
+	for _, item := range borrowEvents {
+		book := GetOneBook(c, item.BookID)
+		user := GetOneUser(c, item.UserID)
+		bookCopy := GetCopyOfBook(c, item.InventoryNumber)
+
+		bookToReturn := models.ReturnBook{
+			BorrowEvent: item,
+			Book:        book,
+			BookCopy:    bookCopy,
+			User:        user,
+		}
+
+		booksToReturn = append(booksToReturn, bookToReturn)
+	}
+
+	return booksToReturn
+
+}
+
+func BookReturned(c *fiber.Ctx) error {
+	inventoryNumber, err := strconv.Atoi(c.Params("inventoryNumber"))
+	if err != nil {
+		return err
+	}
+	bookID, err := strconv.Atoi(c.Params("bookID"))
+	if err != nil {
+		return err
+	}
+	userID, err := strconv.Atoi(c.Params("userID"))
+	if err != nil {
+		return err
+	}
+
+	borrowEventsCollection := initializers.Client.Collection("borrowEvents")
+	bookCopiesCollection := initializers.Client.Collection("bookCopies")
+
+	queryCopies := bookCopiesCollection.Where("inventory_number", "==", inventoryNumber).Limit(1)
+
+	docCopies, err := queryCopies.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docCopies[0].Ref.Update(context.Background(), []firestore.Update{
+		{
+			Path:  "available",
+			Value: true,
+		},
+	}); err != nil {
+		return nil
+	}
+
+	queryEvents := borrowEventsCollection.Where("inventory_number", "==", inventoryNumber)
+
+	docEvents, err := queryEvents.Documents(context.Background()).GetAll()
+	if err != nil {
+		return nil
+	}
+
+	if _, err = docEvents[0].Ref.Delete(context.Background()); err != nil {
+		return nil
+	}
+
+	book := GetOneBook(c, bookID)
+	message := "Dziękujemy za oddanie książki " + book.Title
+
+	err = CreateNotification(
+		strconv.Itoa(userID),
+		book.Title,
+		message,
+		1,
+		false,
+	)
+	if err != nil {
+		log.Printf("Error creating user notification: %v", err)
+	}
+
+	return c.Redirect("/booksToReturn")
 }
