@@ -1,9 +1,7 @@
 {{define "homePage"}}
 <div class="bg-gray-200 py-5">
   <!-- Opis biblioteki -->
-  <section
-    class="homepage-description max-w-6xl mx-auto bg-white p-7 rounded-lg shadow-lg text-center"
-  >
+  <section class="homepage-description max-w-6xl mx-auto bg-white p-7 rounded-lg shadow-lg text-center">
     <h2 class="text-4xl font-bold text-gray-800 mb-6">
       Witamy w naszej Bibliotece
     </h2>
@@ -20,17 +18,18 @@
 </div>
 
 <div class="bg-gray-200 py-5">
+  {{template "top_books"}}
+</div>
+
+<div class="bg-gray-200 py-5">
   <!-- Aktualności -->
-  <section
-    class="homepage-news max-w-6xl mx-auto bg-white p-10 rounded-lg shadow-lg"
-  >
+  <section class="homepage-news max-w-6xl mx-auto bg-white p-10 rounded-lg shadow-lg">
     <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">
       Aktualności
     </h2>
     <div class="space-y-6">
       <div
-        class="news-item p-6 border border-gray-300 rounded-lg shadow-sm hover:shadow-lg hover:bg-gray-100 transition duration-300"
-      >
+        class="news-item p-6 border border-gray-300 rounded-lg shadow-sm hover:shadow-lg hover:bg-gray-100 transition duration-300">
         <h3 class="text-lg font-semibold text-gray-800">
           Nowe godziny otwarcia
         </h3>
@@ -41,8 +40,7 @@
         </p>
       </div>
       <div
-        class="news-item p-6 border border-gray-300 rounded-lg shadow-sm hover:shadow-lg hover:bg-gray-100 transition duration-300"
-      >
+        class="news-item p-6 border border-gray-300 rounded-lg shadow-sm hover:shadow-lg hover:bg-gray-100 transition duration-300">
         <h3 class="text-lg font-semibold text-gray-800">
           Spotkanie autorskie z Anną Lewandowską
         </h3>

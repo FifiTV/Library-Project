@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"my-firebase-project/helpers"
 	"my-firebase-project/initializers"
+	"my-firebase-project/workers"
 
 	"net/http"
 	"os"
@@ -23,6 +24,7 @@ func init() {
 func main() {
 
 	app := helpers.CreateApp()
+	workers.SetWorkers()
 	// localhost for remove a windowds defeder ask
 	app.Listen("localhost:" + os.Getenv("PORT"))
 	// controllers.SendEmail("", "Test", "Test body")
