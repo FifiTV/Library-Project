@@ -61,7 +61,7 @@
                 bookAuthor.classList.add('text-center', 'text-gray-500');
                 bookAuthor.textContent = book.Author;
                 bookCard.appendChild(bookAuthor);
-                
+
                 const bookButton = document.createElement('button');
                 bookButton.textContent = 'Więcej';
                 bookButton.classList.add('mt-3', 'w-full', 'bg-indigo-600', 'text-white', 'py-2', 'rounded', 'hover:bg-blue-600', 'transition');
@@ -78,22 +78,43 @@
     }
 
     function setupScrollButtons() {
-        const container = document.getElementById('books-container');
-        const scrollLeftButton = document.getElementById('scroll-left');
-        const scrollRightButton = document.getElementById('scroll-right');
-        const bookWidth = 192 + 32;
+    const container = document.getElementById('books-container');
+    const scrollLeftButton = document.getElementById('scroll-left');
+    const scrollRightButton = document.getElementById('scroll-right');
+    const bookWidth = 192 + 32; // Adjust based on the width and gap of book cards
 
-        scrollLeftButton.addEventListener('click', () => {
-            container.scrollBy({ left: -bookWidth, behavior: 'smooth' });
-        });
+    scrollLeftButton.addEventListener('click', () => {
+        container.scrollBy({ left: -bookWidth, behavior: 'smooth' });
+    });
 
-        scrollRightButton.addEventListener('click', () => {
+    scrollRightButton.addEventListener('click', () => {
+        container.scrollBy({ left: bookWidth, behavior: 'smooth' });
+    });
+
+    // Auto-scroll
+    let autoScrollInterval = setInterval(() => {
+        container.scrollBy({ left: bookWidth, behavior: 'smooth' });
+
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth) {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+    }, 3000);
+
+    container.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+    container.addEventListener('mouseleave', () => {
+        autoScrollInterval = setInterval(() => {
             container.scrollBy({ left: bookWidth, behavior: 'smooth' });
-        });
-    }
 
-    fetchBooks();
-    setupScrollButtons();
+            if (container.scrollLeft + container.clientWidth >= container.scrollWidth) {
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+            }
+        }, 1000);
+    });
+}
+
+fetchBooks();
+setupScrollButtons();
+
 </script>
 
 {{end}}
