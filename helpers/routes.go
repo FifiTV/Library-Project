@@ -41,6 +41,15 @@ func Routes(app *fiber.App) {
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.Cancel)
 
+	app.Get("/proposeBook", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.User),
+		controllers.GetProposeNewBookPage)
+	app.Post("/proposeBook", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.User),
+		func(c *fiber.Ctx) error {
+			return controllers.ProposeNewBook(c)
+		})
+
 	app.Get("/booksToReturn", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetBooksToReturnPage)

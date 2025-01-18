@@ -71,6 +71,10 @@ func GetAddBookPage(c *fiber.Ctx) error {
 	})
 }
 
+func GetProposeNewBookPage(c *fiber.Ctx) error {
+	return middleware.Render("forms/proposeBook", c, fiber.Map{})
+}
+
 func GetHistoryPage(c *fiber.Ctx) error {
 	// Check if the "show_current" query parameter is present
 	showCurrentOnly := c.Query("show_current") == "true"

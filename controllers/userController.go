@@ -199,70 +199,149 @@ func ExtendDate(c *fiber.Ctx) error {
 	return c.Redirect("/history")
 }
 func DeleteAccount(c *fiber.Ctx) error {
-    // Pobierz e-mail z formularza
-    email := c.FormValue("email")
-    log.Printf("Podany e-mail: %s", email)
+	// Pobierz e-mail z formularza
+	email := c.FormValue("email")
+	log.Printf("Podany e-mail: %s", email)
 
-    // Sprawdź, czy e-mail został podany
-    if email == "" {
-        log.Println("Błąd: Nie podano e-maila")
-        return c.Status(fiber.StatusBadRequest).Render("deleteAccount", fiber.Map{
-            "errorMessage": "Proszę podać adres e-mail!",
-        })
-    }
+	// Sprawdź, czy e-mail został podany
+	if email == "" {
+		log.Println("Błąd: Nie podano e-maila")
+		return c.Status(fiber.StatusBadRequest).Render("deleteAccount", fiber.Map{
+			"errorMessage": "Proszę podać adres e-mail!",
+		})
+	}
 
-    // Pobierz dane użytkownika z sesji
-    sess, err := middleware.GetSession(c)
-    if err != nil {
-        log.Printf("Błąd pobierania sesji: %v", err)
-        return c.Status(fiber.StatusInternalServerError).Render("deleteAccount", fiber.Map{
-            "errorMessage": "Nie udało się pobrać danych sesji. Spróbuj ponownie później.",
-        })
-    }
+	// Pobierz dane użytkownika z sesji
+	sess, err := middleware.GetSession(c)
+	if err != nil {
+		log.Printf("Błąd pobierania sesji: %v", err)
+		return c.Status(fiber.StatusInternalServerError).Render("deleteAccount", fiber.Map{
+			"errorMessage": "Nie udało się pobrać danych sesji. Spróbuj ponownie później.",
+		})
+	}
 
-    loggedInEmail, ok := sess.Get("email").(string)
-    log.Printf("E-mail z sesji: %s", loggedInEmail)
-    if !ok || loggedInEmail == "" {
-        log.Println("Błąd: E-mail w sesji jest pusty")
-        return c.Status(fiber.StatusUnauthorized).Render("deleteAccount", fiber.Map{
-            "errorMessage": "Nie jesteś zalogowany. Zaloguj się, aby usunąć swoje konto.",
-        })
-    }
+	loggedInEmail, ok := sess.Get("email").(string)
+	log.Printf("E-mail z sesji: %s", loggedInEmail)
+	if !ok || loggedInEmail == "" {
+		log.Println("Błąd: E-mail w sesji jest pusty")
+		return c.Status(fiber.StatusUnauthorized).Render("deleteAccount", fiber.Map{
+			"errorMessage": "Nie jesteś zalogowany. Zaloguj się, aby usunąć swoje konto.",
+		})
+	}
 
-    // Porównaj podany e-mail z zalogowanym
-    if email != loggedInEmail {
-        log.Printf("Błąd: Podany e-mail (%s) różni się od zalogowanego (%s)", email, loggedInEmail)
-        log.Println("Sesja NIE została zniszczona. Użytkownik pozostaje zalogowany.")
-        return c.Render("deleteAccount", fiber.Map{
-            "errorMessage": "Podany adres e-mail nie pasuje do zalogowanego użytkownika. Spróbuj ponownie.",
-        })
-    }
+	// Porównaj podany e-mail z zalogowanym
+	if email != loggedInEmail {
+		log.Printf("Błąd: Podany e-mail (%s) różni się od zalogowanego (%s)", email, loggedInEmail)
+		log.Println("Sesja NIE została zniszczona. Użytkownik pozostaje zalogowany.")
+		return c.Render("deleteAccount", fiber.Map{
+			"errorMessage": "Podany adres e-mail nie pasuje do zalogowanego użytkownika. Spróbuj ponownie.",
+		})
+	}
 
-    // Pobierz użytkownika z Firestore na podstawie e-maila
-    userDocs, err := initializers.Client.Collection("users").Where("email", "==", email).Documents(c.Context()).GetAll()
-    if err != nil || len(userDocs) == 0 {
-        log.Printf("Błąd: Nie znaleziono użytkownika w Firestore z e-mailem: %s", email)
-        return c.Render("deleteAccount", fiber.Map{
-            "errorMessage": "Nie znaleziono konta z tym adresem e-mail.",
-        })
-    }
+	// Pobierz użytkownika z Firestore na podstawie e-maila
+	userDocs, err := initializers.Client.Collection("users").Where("email", "==", email).Documents(c.Context()).GetAll()
+	if err != nil || len(userDocs) == 0 {
+		log.Printf("Błąd: Nie znaleziono użytkownika w Firestore z e-mailem: %s", email)
+		return c.Render("deleteAccount", fiber.Map{
+			"errorMessage": "Nie znaleziono konta z tym adresem e-mail.",
+		})
+	}
 
-    // Usuń konto użytkownika
-    if _, err := userDocs[0].Ref.Delete(c.Context()); err != nil {
-        log.Printf("Błąd: Nie udało się usunąć użytkownika z Firestore: %v", err)
-        return c.Render("deleteAccount", fiber.Map{
-            "errorMessage": "Wystąpił błąd podczas usuwania konta.",
-        })
-    }
+	// Usuń konto użytkownika
+	if _, err := userDocs[0].Ref.Delete(c.Context()); err != nil {
+		log.Printf("Błąd: Nie udało się usunąć użytkownika z Firestore: %v", err)
+		return c.Render("deleteAccount", fiber.Map{
+			"errorMessage": "Wystąpił błąd podczas usuwania konta.",
+		})
+	}
 
-    // Usuń sesję użytkownika tylko po poprawnym usunięciu konta
-    if err := sess.Destroy(); err != nil {
-        log.Printf("Błąd podczas niszczenia sesji: %v", err)
-        return c.Status(fiber.StatusInternalServerError).Render("deleteAccount", fiber.Map{
-            "errorMessage": "Wystąpił błąd podczas usuwania sesji. Konto zostało usunięte.",
-        })
-    }
+	// Usuń sesję użytkownika tylko po poprawnym usunięciu konta
+	if err := sess.Destroy(); err != nil {
+		log.Printf("Błąd podczas niszczenia sesji: %v", err)
+		return c.Status(fiber.StatusInternalServerError).Render("deleteAccount", fiber.Map{
+			"errorMessage": "Wystąpił błąd podczas usuwania sesji. Konto zostało usunięte.",
+		})
+	}
 
-    log.Println("Konto zostało pomyślnie usunięte.")
-    return c.Redirect("/")
+	log.Println("Konto zostało pomyślnie usunięte.")
+	return c.Redirect("/")
+}
+
+func ProposeNewBook(c *fiber.Ctx) error {
+	bookPropositionsCollection := initializers.Client.Collection("bookPropositions")
+	title := c.FormValue("title")
+	author := c.FormValue("author")
+	comment := c.FormValue("comment")
+	sess, _ := middleware.GetSession(c)
+	userID := sess.Get("userID").(int)
+	newComment := models.Comment{
+		UserID:  userID,
+		Content: comment,
+	}
+
+	queryIsExisiting := bookPropositionsCollection.
+		Where("title", "==", title).
+		Where("author", "==", author)
+
+	docs, err := queryIsExisiting.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+	}
+
+	if len(docs) == 1 {
+		docID := docs[0].Ref.ID
+
+		doc := docs[0]
+
+		comments, ok := doc.Data()["comments"].([]interface{})
+		if !ok {
+			log.Printf("Error casting comments field")
+		}
+
+		var commentsCheck []models.Comment
+		for _, comment := range comments {
+			commentMap, ok := comment.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			commentsCheck = append(commentsCheck, models.Comment{
+				UserID:  int(commentMap["userId"].(int64)),
+				Content: commentMap["content"].(string),
+			})
+		}
+
+		for _, existingComment := range commentsCheck {
+			if existingComment.UserID == userID {
+				return middleware.Render("forms/proposeBook", c, fiber.Map{
+					"errorMessage": "Już złożyłeś propozycję tej książki!",
+				})
+			}
+		}
+		_, err := bookPropositionsCollection.Doc(docID).Update(context.Background(), []firestore.Update{
+			{
+				Path:  "comments",
+				Value: firestore.ArrayUnion(newComment),
+			},
+			{
+				Path:  "upVotes",
+				Value: firestore.Increment(1),
+			},
+		})
+		if err != nil {
+			return nil
+		}
+	} else {
+		newProposedBook := models.ProposedBook{
+			Title:    title,
+			Author:   author,
+			Comments: []models.Comment{newComment},
+			UpVoutes: 1,
+		}
+		_, _, err := bookPropositionsCollection.Add(context.Background(), newProposedBook)
+		if err != nil {
+			log.Printf("Error adding new ProposalBook: %v", err)
+		}
+	}
+
+	return c.Redirect("/proposeBook")
 }
