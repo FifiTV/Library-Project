@@ -6,9 +6,13 @@ import (
 )
 
 // Create a global email configuration (or load it from environment variables)
-var EmailConfig = models.EmailConfig{
-	SMTPHost:    "smtp.gmail.com",
-	SMTPPort:    587,
-	SenderEmail: "student.paigr4@gmail.com",
-	SenderPass:  os.Getenv("SENDERPASS"), // Use app-specific passwords if needed
+var EmailConfig models.EmailConfig
+
+func InitMail() {
+	EmailConfig = models.EmailConfig{
+		SMTPHost:    "smtp.gmail.com",
+		SMTPPort:    587,
+		SenderEmail: os.Getenv("SENDEREMAIL"),
+		SenderPass:  os.Getenv("SENDERPASS"),
+	}
 }

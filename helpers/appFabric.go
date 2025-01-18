@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,6 +20,7 @@ func CreateApp() *fiber.App {
 	app.Static("/", "./public")
 
 	app.Use(middleware.SessionChecker)
+	initializers.InitMail()
 
 	Routes(app)
 	return app

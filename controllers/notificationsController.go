@@ -3,10 +3,13 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"strings"
+	"text/template"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
@@ -149,5 +152,41 @@ func SendEmail(to, subject, body string) error {
 	if err := d.DialAndSend(m); err != nil {
 		return err
 	}
+	return nil
+}
+
+func loadTemplate(filePath string) (string, error) {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
+func SendResetPasswdEMail(to string) error {
+	templateContent, err := loadTemplate("views/email/passwdReset.html")
+	if err != nil {
+		return fmt.Errorf("could not load template: %v", err)
+	}
+	sub := "Nowe Hasło"
+	data := map[string]interface{}{
+		"Subject":  sub,
+		"UserMail": to,
+	}
+
+	tmpl, err := template.New("email").Parse(templateContent)
+	if err != nil {
+		return fmt.Errorf("could not parse template: %v", err)
+	}
+
+	var body strings.Builder
+
+	err = tmpl.Execute(&body, data)
+	if err != nil {
+		return fmt.Errorf("could not execute template: %v", err)
+	}
+	go SendEmail(to, sub, body.String())
+
+	// fmt.Println("Email sent successfully!")
 	return nil
 }
