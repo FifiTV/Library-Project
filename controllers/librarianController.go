@@ -19,9 +19,8 @@ import (
 func GetCountOfRecords(c *fiber.Ctx, client *firestore.Client, collection string, key string, value string) int {
 	countQuery := client.Collection(collection).
 		Where(key, "==", value).
-		Select() // No fields needed; we just need the count.
+		Select()
 
-	// Perform the count aggregation
 	agg, err := countQuery.Documents(c.Context()).GetAll()
 	if err != nil {
 		return -1

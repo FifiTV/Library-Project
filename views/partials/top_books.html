@@ -1,36 +1,56 @@
 {{define "top_books"}}
 <div class="container mx-auto px-4 py-5 max-w-screen-xl">
     <h2 class="text-2xl font-semibold mb-4 text-center">Nasze polecenia!</h2>
-    <div id="books-container" class="flex flex-wrap gap-4 justify-center">
-        <!-- Book cards will be injected here -->
+    <div class="relative">
+        <button id="scroll-left"
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 -translate-x-16">
+        <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#444"
+            class="transform rotate-180">
+            <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z" />
+        </svg>
+    </button>
+    <button id="scroll-right"
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 translate-x-16">
+        <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#444">
+            <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z" />
+        </svg>
+    </button>
+    
+        <div id="books-container" class="flex gap-8 overflow-x-hidden scroll-smooth px-20">
+        </div>
     </div>
 </div>
-
 <script>
     async function fetchBooks() {
         try {
-            const response = await fetch('http://127.0.0.1:8080/api/get-best-books'); // Replace with your actual API URL
-            const books = await response.json(); 
-            
+            const response = await fetch('http://127.0.0.1:8080/api/get-best-books');
+            const books = await response.json();
+
             const booksContainer = document.getElementById('books-container');
-            booksContainer.innerHTML = ''; // Clear the container before adding new books
+            booksContainer.innerHTML = '';
 
             books.forEach((book, index) => {
                 const bookCard = document.createElement('div');
                 bookCard.classList.add('flex-none', 'w-48', 'bg-white', 'rounded-lg', 'shadow-lg', 'p-4', 'relative');
-                
-                // Adding rank number above the cover
+
                 const bookRank = document.createElement('span');
-                bookRank.classList.add('absolute', 'top-0', 'left-1/2', 'transform', '-translate-x-1/2', 
-                                       'text-4xl', 'font-bold', 'text-gray-800', 'z-10', 'mb-2', 'bg-yellow-300', 'px-2', 'py-1', 'rounded-full');
-                bookRank.textContent = `${index + 1}`;
+                bookRank.classList.add('absolute', 'top-0', 'left-1/2', 'transform', '-translate-x-1/2',
+                    'text-4xl', 'font-bold', 'text-gray-800', 'z-10', 'mb-2', 'bg-yellow-300', 'px-2', 'py-1', 'rounded-full');
+                bookRank.textContent = parseFloat(book.AvgScore).toFixed(1);
                 bookCard.appendChild(bookRank);
+
+                const bookPageLink = `http://127.0.0.1:8080/bookdetails/${book.Id}`;
+                const bookLink = document.createElement('a');
+                bookLink.href = bookPageLink;
+                bookLink.target = '_blank';
 
                 const bookImage = document.createElement('img');
                 bookImage.src = book.Cover;
                 bookImage.alt = book.Title;
                 bookImage.classList.add('w-full', 'h-60', 'object-cover', 'rounded-md', 'mb-4');
-                bookCard.appendChild(bookImage);
+
+                bookLink.appendChild(bookImage);
+                bookCard.appendChild(bookLink);
 
                 const bookTitle = document.createElement('h3');
                 bookTitle.classList.add('text-lg', 'font-semibold', 'text-center');
@@ -41,6 +61,14 @@
                 bookAuthor.classList.add('text-center', 'text-gray-500');
                 bookAuthor.textContent = book.Author;
                 bookCard.appendChild(bookAuthor);
+                
+                const bookButton = document.createElement('button');
+                bookButton.textContent = 'Więcej';
+                bookButton.classList.add('mt-3', 'w-full', 'bg-indigo-600', 'text-white', 'py-2', 'rounded', 'hover:bg-blue-600', 'transition');
+                bookButton.onclick = () => {
+                    window.open(bookPageLink, '_blank', 'noopener,noreferrer');
+                };
+                bookCard.appendChild(bookButton);
 
                 booksContainer.appendChild(bookCard);
             });
@@ -48,6 +76,24 @@
             console.error('Error fetching books:', error);
         }
     }
+
+    function setupScrollButtons() {
+        const container = document.getElementById('books-container');
+        const scrollLeftButton = document.getElementById('scroll-left');
+        const scrollRightButton = document.getElementById('scroll-right');
+        const bookWidth = 192 + 32;
+
+        scrollLeftButton.addEventListener('click', () => {
+            container.scrollBy({ left: -bookWidth, behavior: 'smooth' });
+        });
+
+        scrollRightButton.addEventListener('click', () => {
+            container.scrollBy({ left: bookWidth, behavior: 'smooth' });
+        });
+    }
+
     fetchBooks();
+    setupScrollButtons();
 </script>
+
 {{end}}
