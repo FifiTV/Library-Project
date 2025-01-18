@@ -2,15 +2,18 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"regexp"
 	"strconv"
 	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/iterator"
 )
 
@@ -344,4 +347,128 @@ func ProposeNewBook(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect("/proposeBook")
+}
+
+func GetEmailFormForResetPasswd(c *fiber.Ctx) error {
+	return middleware.Render("forms/resetPasswdFormEmail", c, fiber.Map{})
+}
+
+func SetNewPasswd(c *fiber.Ctx) error {
+	type RequestBody struct {
+		Email string `json:"email"`
+	}
+	var body RequestBody
+	if err := c.BodyParser(&body); err != nil {
+		// fmt.Println("Error parsing request body:", err)
+		return c.Status(400).SendString("Invalid request body")
+	}
+
+	userMail := body.Email
+	if userMail == "" {
+		// fmt.Println("Email not provided")
+		return c.Status(400).SendString("Email is required")
+	}
+
+	err := SendResetPasswdEMail(userMail)
+	if err != nil {
+		fmt.Println("Error sending reset email:", err)
+		return c.Status(500).SendString("Failed to send reset email")
+	}
+
+	return middleware.Render("pageAfterSendRequestForResetPasswd", c, fiber.Map{})
+}
+
+func GetResetPasswdForm(c *fiber.Ctx) error {
+	mail := c.Params("id")
+	return middleware.Render("forms/resetPasswd", c, fiber.Map{
+		"Email": mail,
+	})
+}
+
+func GetOneUserByMail(c *fiber.Ctx, mail string) models.User {
+	usersCollection := initializers.Client.Collection("users")
+
+	docs, err := usersCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+
+	}
+
+	var userReturn models.User
+
+	for _, doc := range docs {
+		var user models.User
+		if err := doc.DataTo(&user); err != nil {
+			log.Printf("Error decoding document: %v", err)
+		}
+		if user.Email == mail {
+			userReturn = user
+		}
+	}
+
+	return userReturn
+}
+
+func updatePasswdForUser(c *fiber.Ctx, userId int, newPasswd string) error {
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPasswd), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("Error hashing password: %v", err)
+		return c.Status(500).SendString("Internal Server Error")
+	}
+
+	usersCollection := initializers.Client.Collection("users")
+	userQuery := usersCollection.Where("id", "==", userId).Limit(1)
+	iter := userQuery.Documents(c.Context())
+
+	doc, err := iter.Next()
+	if err != nil {
+		log.Printf("Error finding user with id %d: %v", userId, err)
+		return c.Status(404).SendString("User not found")
+	}
+
+	userDocRef := doc.Ref
+
+	_, err = userDocRef.Update(c.Context(), []firestore.Update{
+		{
+			Path:  "password",
+			Value: string(hashedPassword),
+		},
+	})
+
+	if err != nil {
+		log.Printf("Error updating password in Firestore: %v", err)
+		return c.Status(500).SendString("Error updating password")
+	}
+
+	return nil
+}
+
+func ResetPasswd(c *fiber.Ctx) error {
+	mail := c.Params("id")
+	newPasswd := c.FormValue("newPasswd")
+	newPasswdR := c.FormValue("newPasswdR")
+
+	if !(len(newPasswd) >= 8 &&
+		regexp.MustCompile(`[0-9a-zA-Z]`).MatchString(newPasswd) &&
+		regexp.MustCompile(`[!@#$%^&*]`).MatchString(newPasswd)) {
+
+		return middleware.Render("forms/resetPasswd", c, fiber.Map{
+			"Email":   mail,
+			"Message": "Hasło nie spełnia wymagań!",
+		})
+	}
+
+	user := GetOneUserByMail(c, mail)
+
+	if newPasswd != newPasswdR {
+		// Return a 400 status with a message that passwords do not match
+		return middleware.Render("forms/resetPasswd", c, fiber.Map{
+			"Email":   mail,
+			"Message": "Hasła muszą być takie same!",
+		})
+	}
+
+	updatePasswdForUser(c, user.Id, newPasswd)
+	return middleware.Render("pageAfterChangingPasswd", c, fiber.Map{})
 }
