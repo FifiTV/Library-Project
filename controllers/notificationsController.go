@@ -205,12 +205,12 @@ func SendUpcomingBorrowEventsEmail(c *fiber.Ctx) error {
 
 	// Filter events that are within the next 7 days
 	var upcomingEvents []models.BorrowEvent
-	var bookTitles []string
+	var bookDetails []string
 	for _, eventWrapper := range borrowEventsForUser {
 		borrowEvent := eventWrapper.BorrowEvent
 		if borrowEvent.BorrowEnd.After(now) && borrowEvent.BorrowEnd.Before(cutoff) {
 			upcomingEvents = append(upcomingEvents, borrowEvent)
-			bookTitles = append(bookTitles, eventWrapper.Book.Title) // Collect book titles
+			bookDetails = append(bookDetails, fmt.Sprintf("%s (zwróć do: %s)", eventWrapper.Book.Title, borrowEvent.BorrowEnd.Format("02/01/2006")))
 		}
 	}
 
@@ -223,8 +223,8 @@ func SendUpcomingBorrowEventsEmail(c *fiber.Ctx) error {
 	email := sess.Get("mail").(string)
 
 	// Prepare the email body
-	bookList := strings.Join(bookTitles, ", ")
-	emailBody := fmt.Sprintf("Powinieneś oddać następujące ksiązki w ciągu najbliższych dni: %s", bookList)
+	bookList := strings.Join(bookDetails, "<br>")
+	emailBody := fmt.Sprintf("<html><body><p>Powinieneś oddać następujące ksiązki w ciągu następnych 7 dni:</p><ul><li>%s</li></ul></body></html>", bookList)
 
 	// Send the email
 	sub := "Zwrot książek do biblioteki"
