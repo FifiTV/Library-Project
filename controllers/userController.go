@@ -197,6 +197,45 @@ func ExtendDate(c *fiber.Ctx) error {
 		}); err != nil {
 			return nil
 		}
+		 // Pobierz tytuł książki i dane użytkownika
+		 book := GetOneBook(c, event.BookID)
+		 user := GetOneUser(c, event.UserID)
+ 
+		 // Wyślij powiadomienie do użytkownika
+		 err := CreateNotification(
+			 strconv.Itoa(event.UserID),
+			 book.Title, // Tytuł książki
+			 "Przedłużyłeś termin oddania książki o tydzień.",
+			 1, // Powiadomienie dla użytkownika
+			 false,
+		 )
+		 if err != nil {
+			 log.Printf("Błąd podczas tworzenia powiadomienia dla użytkownika: %v", err)
+		 }
+ 
+		 // Pobierz bibliotekarzy
+		 librarians, err := GetLibrarians(context.Background(), initializers.Client)
+		 if err != nil {
+			 log.Printf("Błąd podczas pobierania bibliotekarzy: %v", err)
+		 } else {
+			 // Wyślij powiadomienie do każdego bibliotekarza
+			 for _, librarianID := range librarians {
+				 err := CreateNotification(
+					 librarianID,
+					 book.Title, // Tytuł książki
+					 fmt.Sprintf("Użytkownik %s przedłużył termin oddania książki o tydzień.", user.Email),
+					 2, // Powiadomienie dla bibliotekarzy
+					 false,
+				 )
+				 if err != nil {
+					 log.Printf("Błąd podczas tworzenia powiadomienia dla bibliotekarza: %v", err)
+				 }
+			 }
+		 }
+	 } else {
+		 return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			 "errorMessage": "Nie można przedłużyć terminu oddania książki. Limit został wyczerpany.",
+		 })
 	}
 
 	return c.Redirect("/history")
