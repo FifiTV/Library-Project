@@ -130,8 +130,8 @@ func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, err
 		}
 
 		// Wyświetl dane dokumentu dla debugowania
-		log.Printf("Przetwarzanie dokumentu ID: %s", doc.Ref.ID)
-		log.Printf("Dane użytkownika: %v", doc.Data())
+		/*log.Printf("Przetwarzanie dokumentu ID: %s", doc.Ref.ID)
+		log.Printf("Dane użytkownika: %v", doc.Data())*/
 
 		// Pobierz pole "id" (userID) z dokumentu
 		userID, ok := doc.Data()["id"].(int64) // Lub float64 w zależności od struktury danych

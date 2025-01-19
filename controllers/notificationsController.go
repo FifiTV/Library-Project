@@ -19,7 +19,7 @@ import (
 
 // Pobranie danych z sesji
 func FetchNotifications(c *fiber.Ctx) error {
-	log.Println("Starting FetchNotifications...")
+	//log.Println("Starting FetchNotifications...")
 
 	// Get session
 	sess, err := middleware.GetSession(c)
@@ -39,7 +39,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Printf("Fetching notifications for userID: %d", userID)
+	//log.Printf("Fetching notifications for userID: %d", userID)
 
 	ctx := context.Background()
 	notifications := []models.Notification{}
@@ -56,7 +56,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Printf("Fetched %d notifications for userID: %d", len(snapshot), userID)
+	//log.Printf("Fetched %d notifications for userID: %d", len(snapshot), userID)
 
 	// Parse notifications
 	for _, doc := range snapshot {
@@ -67,15 +67,15 @@ func FetchNotifications(c *fiber.Ctx) error {
 			continue
 		}
 		notification.ID = doc.Ref.ID
-		log.Printf("Notification parsed: %+v", notification)
+		//log.Printf("Notification parsed: %+v", notification)
 		notifications = append(notifications, notification)
 	}
 
-	if len(notifications) == 0 {
+	/*if len(notifications) == 0 {
 		log.Println("No notifications found for user")
 	} else {
 		log.Printf("Returning %d notifications", len(notifications))
-	}
+	}*/
 
 	return c.JSON(notifications)
 }
