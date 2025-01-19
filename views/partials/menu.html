@@ -1,25 +1,25 @@
 {{define "menu"}}
-<nav class="bg-gray-700 text-white py-8">
+<nav class="bg-gray-700 text-white py-4">
   <div class="container mx-auto flex justify-center">
-    <ul class="flex space-x-2">
+    <ul class="flex space-x-1">
       <li>
         <a
           href="/"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Strona główna</a
         >
       </li>
       <li>
         <a
           href="/booklist"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Lista książek</a
         >
       </li>
       <li>
         <a
-          href="#"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          href="/aboutUs"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >O nas</a
         >
       </li>
@@ -27,44 +27,43 @@
       <li>
         <a
           href="/get-all-users"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Zarządzaj użytkownikami</a
         >
       </li>
       <li>
         <a
           href="/addBook"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Dodaj książkę</a
         >
       </li>
       <li>
         <a
           href="/approvalQueue"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Kolejka zatwierdzeń</a
         >
       </li>
       <li>
         <a
           href="/booksToReturn"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Książki do zwrotu</a
         >
       </li>
       <li>
         <a
           href="/proposedBooksList"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Polecone użytkowników</a
         >
       </li>
-      {{end}}
-      {{if lt .userRole 2}}
+      {{end}} {{if lt .userRole 2}}
       <li>
         <a
           href="/proposeBook"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Zaproponuj książkę</a
         >
       </li>
@@ -72,7 +71,7 @@
       <li>
         <a
           href="/history"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Historia</a
         >
       </li>
@@ -80,7 +79,7 @@
       <li class="relative account-menu">
         <a
           href="#"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
         >
           Konto
         </a>
@@ -100,7 +99,7 @@
       <li>
         <a
           href="/logout"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Wyloguj się</a
         >
       </li>
@@ -108,7 +107,7 @@
       <li>
         <a
           href="/login"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded"
+          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
           >Zaloguj się</a
         >
       </li>

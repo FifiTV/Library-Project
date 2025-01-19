@@ -381,6 +381,7 @@ func ProposeNewBook(c *fiber.Ctx) error {
 			Comments: []models.Comment{newComment},
 			UpVoutes: 1,
 		}
+		
 		_, _, err := bookPropositionsCollection.Add(context.Background(), newProposedBook)
 		if err != nil {
 			log.Printf("Error adding new ProposalBook: %v", err)

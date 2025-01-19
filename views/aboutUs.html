@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head_tmpl"}}
+  </head>
+
+  <body>
+    {{template "header"}} {{template "menu" .}}
+    <div class="center-wrapper">
+      <div
+        class="about-container bg-gray-100 max-w-4xl mx-auto flex flex-col p-6 rounded-lg shadow-lg"
+      >
+        <!-- Tytuł sekcji -->
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">O nas</h1>
+
+        <!-- Opis biblioteki -->
+        <section
+          class="about-description text-gray-700 text-lg leading-relaxed text-justify mb-6"
+        >
+          <p>
+            Nasza biblioteka powstała w 1920 roku i od tego czasu służy lokalnej
+            społeczności jako miejsce nauki, rozwoju i kultury. Dzięki szerokiej
+            ofercie książek, czasopism, e-booków oraz materiałów
+            multimedialnych, spełniamy potrzeby zarówno studentów, naukowców,
+            jak i miłośników literatury.
+          </p>
+          <p class="mt-4">
+            Naszym celem jest tworzenie przestrzeni przyjaznej dla każdego – od
+            uczniów i nauczycieli, przez naukowców, aż po osoby szukające chwili
+            wytchnienia z dobrą książką. Organizujemy liczne warsztaty,
+            spotkania autorskie i wydarzenia kulturalne, które integrują lokalną
+            społeczność.
+          </p>
+        </section>
+
+        <!-- Zdjęcie biblioteki -->
+        <div class="library-image mb-6">
+          <img
+            src="/public/assets/biblioteka"
+            alt="Zdjęcie biblioteki"
+            class="rounded-lg shadow-lg mx-auto w-full h-auto max-w-xl"
+          />
+          <p class="text-sm text-gray-500 text-center mt-2">
+            Nasza piękna biblioteka przy ulicy Kwiatowej 15.
+          </p>
+        </div>
+
+        <!-- Historia biblioteki -->
+        <section
+          class="history-section text-gray-700 text-lg leading-relaxed text-justify mb-6"
+        >
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Historia</h2>
+          <p>
+            Biblioteka została założona w odpowiedzi na potrzebę stworzenia
+            miejsca edukacji i wymiany wiedzy. Pierwsza siedziba znajdowała się
+            przy ulicy Lipowej i mieściła jedynie kilkaset książek. W 1960 roku
+            przenieśliśmy się do obecnego, przestronnego budynku przy ulicy
+            Kwiatowej 15. W latach 90. rozpoczęliśmy cyfryzację zbiorów, co
+            pozwoliło na wprowadzenie nowoczesnych systemów zarządzania
+            wypożyczeniami.
+          </p>
+          <p class="mt-4">
+            Dziś nasza biblioteka to nowoczesne centrum, które łączy tradycję z
+            innowacją. Dzięki stałym inwestycjom w zasoby i infrastrukturę,
+            możemy oferować najwyższą jakość usług.
+          </p>
+        </section>
+
+        <!-- Lokalizacja -->
+        <section
+          class="location-section text-gray-700 text-lg leading-relaxed text-justify mb-6"
+        >
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+            Lokalizacja i kontakt
+          </h2>
+          <p><strong>Adres:</strong> ul. Kwiatowa 15, 00-123 Warszawa</p>
+          <p><strong>Telefon:</strong> +48 123 456 789</p>
+          <p><strong>Email:</strong> kontakt@biblioteka.pl</p>
+          <p class="mt-4"><strong>Godziny otwarcia:</strong></p>
+          <ul class="list-disc list-inside">
+            <li>Poniedziałek - Piątek: 9:00 - 18:00</li>
+            <li>Sobota: 10:00 - 14:00</li>
+            <li>Niedziela: Zamknięte</li>
+          </ul>
+        </section>
+
+        <!-- Misja -->
+        <section
+          class="mission-section text-gray-700 text-lg leading-relaxed text-justify"
+        >
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Nasza misja</h2>
+          <p>
+            Dążymy do tego, aby biblioteka była miejscem, które inspiruje,
+            rozwija pasje i wspiera edukację. Naszą misją jest promowanie
+            czytelnictwa i kultury, a także zapewnianie dostępu do wiedzy i
+            informacji każdemu, kto tego potrzebuje. Wierzymy, że książki mają
+            moc zmieniania życia, dlatego dokładamy wszelkich starań, aby nasze
+            zasoby były dostępne i atrakcyjne dla wszystkich.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    {{template "footer"}} {{template "scripts"}}
+  </body>
+</html>

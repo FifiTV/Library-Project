@@ -28,6 +28,10 @@ func GetRegistrationPage(c *fiber.Ctx) error {
 	return middleware.Render("registration", c, fiber.Map{})
 }
 
+func GetAboutUsPage(c *fiber.Ctx) error {
+	return middleware.Render("aboutUs", c, fiber.Map{})
+}
+
 func GetLoginPage(c *fiber.Ctx) error {
 	return middleware.Render("login", c, fiber.Map{})
 }

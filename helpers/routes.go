@@ -24,6 +24,8 @@ func Routes(app *fiber.App) {
 	app.Get("/booklist", controllers.GetListBookPage)
 	app.Get("/bookdetails/:id", controllers.GetBookDetailsPage)
 
+	app.Get("/aboutUs", controllers.GetAboutUsPage)
+
 	app.Get("/history", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.User),
 		controllers.GetHistoryPage)
