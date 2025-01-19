@@ -53,7 +53,7 @@ func LoginHandler(c *fiber.Ctx, client *firestore.Client) error {
 	}
 	//Send reminder to back the books
 	sendReminders(c)
-
+	SendUpcomingBorrowEventsEmail(c)
 	return c.Redirect("/")
 }
 

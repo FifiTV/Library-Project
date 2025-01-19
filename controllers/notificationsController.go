@@ -10,6 +10,7 @@ import (
 	"my-firebase-project/models"
 	"strings"
 	"text/template"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
@@ -188,5 +189,46 @@ func SendResetPasswdEMail(to string) error {
 	go SendEmail(to, sub, body.String())
 
 	// fmt.Println("Email sent successfully!")
+	return nil
+}
+
+func SendUpcomingBorrowEventsEmail(c *fiber.Ctx) error {
+	// Retrieve borrow events for the user
+	borrowEventsForUser, err := GetAllBorrowEventsForUser(c, true)
+	if err != nil {
+		return fmt.Errorf("could not get borrow events: %v", err)
+	}
+
+	// Get the current time and define the cutoff time for 7 days in the future
+	now := time.Now()
+	cutoff := now.Add(7 * 24 * time.Hour)
+
+	// Filter events that are within the next 7 days
+	var upcomingEvents []models.BorrowEvent
+	var bookTitles []string
+	for _, eventWrapper := range borrowEventsForUser {
+		borrowEvent := eventWrapper.BorrowEvent
+		if borrowEvent.BorrowEnd.After(now) && borrowEvent.BorrowEnd.Before(cutoff) {
+			upcomingEvents = append(upcomingEvents, borrowEvent)
+			bookTitles = append(bookTitles, eventWrapper.Book.Title) // Collect book titles
+		}
+	}
+
+	// If no upcoming events, return early
+	if len(upcomingEvents) == 0 {
+		return nil
+	}
+
+	sess, _ := middleware.GetSession(c)
+	email := sess.Get("mail").(string)
+
+	// Prepare the email body
+	bookList := strings.Join(bookTitles, ", ")
+	emailBody := fmt.Sprintf("Powinieneś oddać następujące ksiązki w ciągu najbliższych dni: %s", bookList)
+
+	// Send the email
+	sub := "Zwrot książek do biblioteki"
+	go SendEmail(email, sub, emailBody)
+
 	return nil
 }
