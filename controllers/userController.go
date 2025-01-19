@@ -112,6 +112,8 @@ func GetOneUser(c *fiber.Ctx, userId int) models.User {
 }
 
 func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, error) {
+	log.Println("Rozpoczynanie pobierania bibliotekarzy...")
+
 	// Pobierz użytkowników z rolą "Librarian"
 	iter := client.Collection("users").Where("role", "==", 2).Documents(ctx)
 	defer iter.Stop()
@@ -123,17 +125,31 @@ func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, err
 			break
 		}
 		if err != nil {
-			log.Printf("Error fetching librarian: %v", err)
+			log.Printf("Błąd pobierania dokumentu użytkownika: %v", err)
 			return nil, err
 		}
 
-		// Pobierz ID użytkownika
-		id := doc.Ref.ID
-		librarianIDs = append(librarianIDs, id)
+		// Wyświetl dane dokumentu dla debugowania
+		log.Printf("Przetwarzanie dokumentu ID: %s", doc.Ref.ID)
+		log.Printf("Dane użytkownika: %v", doc.Data())
+
+		// Pobierz pole "id" (userID) z dokumentu
+		userID, ok := doc.Data()["id"].(int64) // Lub float64 w zależności od struktury danych
+		if !ok {
+			log.Printf("Nie udało się pobrać userID z dokumentu: %s", doc.Ref.ID)
+			continue
+		}
+
+		// Dodaj `userID` do listy
+		librarianIDs = append(librarianIDs, fmt.Sprintf("%d", userID))
 	}
 
+	log.Printf("Iteracja zakończona. Znaleziono %d bibliotekarzy.", len(librarianIDs))
+	log.Printf("Lista bibliotekarzy: %v", librarianIDs)
 	return librarianIDs, nil
 }
+
+
 
 func sendReminders(c *fiber.Ctx) error {
 	// Retrieve userID from session
@@ -385,6 +401,25 @@ func ProposeNewBook(c *fiber.Ctx) error {
 		_, _, err := bookPropositionsCollection.Add(context.Background(), newProposedBook)
 		if err != nil {
 			log.Printf("Error adding new ProposalBook: %v", err)
+		}
+		// Pobierz bibliotekarzy
+		librarians, err := GetLibrarians(context.Background(), initializers.Client)
+		if err != nil {
+			log.Printf("Błąd podczas pobierania bibliotekarzy: %v", err)
+		} else {
+			// Wyślij powiadomienie do każdego bibliotekarza
+			for _, librarianID := range librarians {
+				err := CreateNotification(
+					librarianID,
+					fmt.Sprintf("Dodano nową propozycję książki: %s", title),
+					fmt.Sprintf("Użytkownik zgłosił propozycję książki '%s' autorstwa '%s'.", title, author),
+					2, // Powiadomienie dla bibliotekarzy
+					false,
+				)
+				if err != nil {
+					log.Printf("Błąd podczas tworzenia powiadomienia dla bibliotekarza: %v", err)
+				}
+			}
 		}
 	}
 

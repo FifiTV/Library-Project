@@ -19,6 +19,9 @@ import (
 
 // Pobranie danych z sesji
 func FetchNotifications(c *fiber.Ctx) error {
+	log.Println("Starting FetchNotifications...")
+
+	// Get session
 	sess, err := middleware.GetSession(c)
 	if err != nil {
 		log.Println("Error fetching session:", err)
@@ -27,7 +30,7 @@ func FetchNotifications(c *fiber.Ctx) error {
 		})
 	}
 
-	// Pobierz userID z sesji
+	// Get userID from session
 	userID, ok := sess.Get("userID").(int)
 	if !ok || userID == 0 {
 		log.Println("User ID not found or invalid in session")
@@ -36,28 +39,42 @@ func FetchNotifications(c *fiber.Ctx) error {
 		})
 	}
 
-	// log.Printf("Fetching notifications for userId: %d", userID)
+	log.Printf("Fetching notifications for userID: %d", userID)
 
 	ctx := context.Background()
 	notifications := []models.Notification{}
 
-	// Pobranie powiadomień
+	// Query Firestore for notifications
 	snapshot, err := initializers.Client.Collection("notifications").
 		Where("recipientId", "==", fmt.Sprintf("%d", userID)).
 		OrderBy("timestamp", firestore.Desc).
 		Documents(ctx).GetAll()
 	if err != nil {
-		// log.Printf("Error fetching notifications: %v", err)
+		log.Printf("Error fetching notifications: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": fmt.Sprintf("Failed to fetch notifications: %v", err),
 		})
 	}
 
+	log.Printf("Fetched %d notifications for userID: %d", len(snapshot), userID)
+
+	// Parse notifications
 	for _, doc := range snapshot {
 		var notification models.Notification
-		doc.DataTo(&notification)
+		err := doc.DataTo(&notification)
+		if err != nil {
+			log.Printf("Error decoding notification document: %v", err)
+			continue
+		}
 		notification.ID = doc.Ref.ID
+		log.Printf("Notification parsed: %+v", notification)
 		notifications = append(notifications, notification)
+	}
+
+	if len(notifications) == 0 {
+		log.Println("No notifications found for user")
+	} else {
+		log.Printf("Returning %d notifications", len(notifications))
 	}
 
 	return c.JSON(notifications)
