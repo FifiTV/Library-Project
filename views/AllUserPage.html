@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{template "head_tmpl"}}
+</head>
+<body class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen">
+    {{template "header"}} 
+    {{template "menu" .}}
+
+    <div class="max-w-6xl mx-auto p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Użytkownicy</h1>
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">ID</th>
+                        <th class="py-3 px-6 text-left">Imię</th>
+                        <th class="py-3 px-6 text-left">Email</th>
+                        <th class="py-3 px-6 text-left">Rola</th>
+                        <th class="py-3 px-6 text-left">Akcja</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                    {{range .Users}}
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">
+                            <span class="font-medium">{{.Id}}</span>
+                        </td>
+                        <td class="py-3 px-6 text-left">
+                            {{.FirstName}}
+                        </td>
+                        <td class="py-3 px-6 text-left">
+                            {{.Email}}
+                        </td>
+                        <td class="py-3 px-6 text-left">
+                            {{if eq .Role 0}}
+                            <span class="text-red-500 font-bold">Na banicji</span>
+                            {{else if eq .Role 2}}
+                            <span class="text-green-500 font-bold">Bibliotekarz</span>
+                            {{else}}
+                            <span class="text-gray-800">User</span>
+                            {{end}}
+                        </td>
+                        <td class="py-3 px-6 text-left">
+                            {{if ne .Role 0}}
+                            <form action="/set-new-role" method="POST" style="display:inline;">
+                                <input type="hidden" name="userId" value="{{.Id}}">
+                                <input type="hidden" name="role" value="0">
+                                <!-- Disable button if user role is already '0' -->
+                                <button {{if eq .Role 0}} disabled {{end}} type="submit" class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700">Banicja</button>
+                            </form>
+                            {{end}}
+                            
+                            {{if ne .Role 2}}
+                            <form action="/set-new-role" method="POST" style="display:inline;">
+                                <input type="hidden" name="userId" value="{{.Id}}">
+                                <input type="hidden" name="role" value="2">
+                                <!-- Disable button if user role is already '2' -->
+                                <button type="submit" class="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-700">Bibliotekarz</button>
+                            </form>
+                            {{end}}
+                            
+                            {{if ne .Role 1}}
+                            <form action="/set-new-role" method="POST" style="display:inline;">
+                                <input type="hidden" name="userId" value="{{.Id}}">
+                                <input type="hidden" name="role" value="1">
+                                <!-- Disable button if user role is already '1' -->
+                                <button type="submit" class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700">Zwykły użytkownik</button>
+                            </form>
+                            {{end}}
+                            
+                            
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{template "footer"}}
+    {{template "scripts"}}
+</body>
+</html>

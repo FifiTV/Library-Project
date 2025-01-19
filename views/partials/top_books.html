@@ -23,7 +23,7 @@
 <script>
     async function fetchBooks() {
         try {
-            const response = await fetch('http://127.0.0.1:8080/api/get-best-books');
+            const response = await fetch('/api/get-best-books');
             const books = await response.json();
 
             const booksContainer = document.getElementById('books-container');
@@ -39,7 +39,7 @@
                 bookRank.textContent = parseFloat(book.AvgScore).toFixed(1);
                 bookCard.appendChild(bookRank);
 
-                const bookPageLink = `http://127.0.0.1:8080/bookdetails/${book.Id}`;
+                const bookPageLink = `/bookdetails/${book.Id}`;
                 const bookLink = document.createElement('a');
                 bookLink.href = bookPageLink;
                 bookLink.target = '_blank';

@@ -7,6 +7,7 @@ import (
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -102,6 +103,7 @@ func GetOneUser(c *fiber.Ctx, userId int) models.User {
 			log.Printf("Error decoding document: %v", err)
 		}
 		if user.Id == userId {
+			user.FirestoreDocID = doc.Ref.ID
 			userReturn = user
 		}
 	}
@@ -471,4 +473,80 @@ func ResetPasswd(c *fiber.Ctx) error {
 
 	updatePasswdForUser(c, user.Id, newPasswd)
 	return middleware.Render("pageAfterChangingPasswd", c, fiber.Map{})
+}
+
+func GetAllUsers(c *fiber.Ctx) ([]models.User, error) {
+
+	usersCollection := initializers.Client.Collection("users")
+
+	query := usersCollection.OrderBy("id", firestore.Asc)
+
+	docs, err := query.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Printf("Error reading documents: %v", err)
+		return nil, err
+	}
+	var users []models.User
+	for _, doc := range docs {
+		var user models.User
+		if err := doc.DataTo(&user); err != nil {
+			log.Printf("Error decoding document: %v", err)
+			continue
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func GetAllUsersPage(c *fiber.Ctx) error {
+	users, _ := GetAllUsers(c)
+	return middleware.Render("AllUserPage", c, fiber.Map{
+		"Users": users,
+	})
+}
+
+func changeUserRole(c *fiber.Ctx, userId int, role int) error {
+	user := GetOneUser(c, userId)
+	if user.Id == 0 {
+		return c.Status(http.StatusNotFound).SendString("User not found")
+	}
+
+	usersCollection := initializers.Client.Collection("users")
+	_, err := usersCollection.Doc(user.FirestoreDocID).Update(context.Background(), []firestore.Update{
+		{
+			Path:  "role",
+			Value: role,
+		},
+	})
+	if err != nil {
+		log.Printf("Error updating user role: %v", err)
+		return c.Status(http.StatusInternalServerError).SendString("Error updating user role")
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"message": "User role updated successfully",
+		"userId":  userId,
+		"newRole": role,
+	})
+}
+
+func SetNewRoleForUser(c *fiber.Ctx) error {
+	// Get user ID from form values and convert it to int
+	userIdStr := c.FormValue("userId")
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).SendString("Invalid user ID")
+	}
+	roleStr := c.FormValue("role")
+	newRole, err := strconv.Atoi(roleStr)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).SendString("Invalid role")
+	}
+	err = changeUserRole(c, userId, newRole)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).SendString("Failed to change user role")
+	}
+
+	return c.Redirect("/get-all-users")
 }
