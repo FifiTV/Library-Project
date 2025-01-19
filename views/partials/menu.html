@@ -2,6 +2,7 @@
 <nav class="bg-gray-700 text-white py-4">
   <div class="container mx-auto flex justify-center">
     <ul class="flex space-x-1">
+      <!-- Opcja: Strona główna -->
       <li>
         <a
           href="/"
@@ -9,6 +10,8 @@
           >Strona główna</a
         >
       </li>
+
+      <!-- Opcja: Lista książek -->
       <li>
         <a
           href="/booklist"
@@ -16,6 +19,8 @@
           >Lista książek</a
         >
       </li>
+
+      <!-- Opcja: O nas -->
       <li>
         <a
           href="/aboutUs"
@@ -23,43 +28,61 @@
           >O nas</a
         >
       </li>
+
+      <!-- Menu dla zalogowanych użytkowników -->
       {{if .isLoggedIn}} {{if ge .userRole 2}}
-      <li>
+      <!-- Panel Bibliotekarza -->
+      <li class="relative librarian-menu">
         <a
-          href="/get-all-users"
+          href="#"
           class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
-          >Zarządzaj użytkownikami</a
+          onclick="toggleLibrarianMenu()"
         >
-      </li>
-      <li>
-        <a
-          href="/addBook"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
-          >Dodaj książkę</a
+          Panel Bibliotekarza
+        </a>
+        <ul
+          id="librarian-dropdown"
+          class="hidden absolute bg-gray-800 text-white mt-2 rounded shadow-lg py-2"
         >
+          <li>
+            <a
+              href="/addBook"
+              class="block px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
+              >Dodaj książkę</a
+            >
+          </li>
+          <li>
+            <a
+              href="/get-all-users"
+              class="block px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
+              >Zarządzaj użytkownikami</a
+            >
+          </li>
+          <li>
+            <a
+              href="/approvalQueue"
+              class="block px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
+              >Kolejka zatwierdzeń</a
+            >
+          </li>
+          <li>
+            <a
+              href="/booksToReturn"
+              class="block px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
+              >Książki do zwrotu</a
+            >
+          </li>
+          <li>
+            <a
+              href="/proposedBooksList"
+              class="block px-4 py-2 hover:bg-gray-600 transition-colors duration-200"
+              >Polecone użytkowników</a
+            >
+          </li>
+        </ul>
       </li>
-      <li>
-        <a
-          href="/approvalQueue"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
-          >Kolejka zatwierdzeń</a
-        >
-      </li>
-      <li>
-        <a
-          href="/booksToReturn"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
-          >Książki do zwrotu</a
-        >
-      </li>
-      <li>
-        <a
-          href="/proposedBooksList"
-          class="hover:bg-gray-600 hover:text-gray-200 transition-colors duration-200 px-4 py-2 rounded whitespace-nowrap"
-          >Polecone użytkowników</a
-        >
-      </li>
-      {{end}} {{if lt .userRole 2}}
+      {{else}}
+      <!-- Opcja dla użytkownika: Zaproponuj książkę -->
       <li>
         <a
           href="/proposeBook"
@@ -68,6 +91,8 @@
         >
       </li>
       {{end}}
+
+      <!-- Opcja: Historia -->
       <li>
         <a
           href="/history"
@@ -75,7 +100,11 @@
           >Historia</a
         >
       </li>
+
+      <!-- Powiadomienia -->
       {{template "notifications" .}}
+
+      <!-- Konto -->
       <li class="relative account-menu">
         <a
           href="#"
@@ -96,6 +125,8 @@
           </li>
         </ul>
       </li>
+
+      <!-- Wyloguj się -->
       <li>
         <a
           href="/logout"
@@ -104,6 +135,7 @@
         >
       </li>
       {{else}}
+      <!-- Opcja dla niezalogowanych: Zaloguj się -->
       <li>
         <a
           href="/login"
@@ -115,4 +147,13 @@
     </ul>
   </div>
 </nav>
+
+<script>
+  // Skrypt do zarządzania rozwijanym menu "Panel Bibliotekarza"
+  function toggleLibrarianMenu() {
+    const dropdown = document.getElementById("librarian-dropdown");
+    dropdown.classList.toggle("hidden");
+  }
+</script>
+
 {{template "scripts"}} {{end}}
