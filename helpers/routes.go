@@ -94,6 +94,8 @@ func Routes(app *fiber.App) {
 	app.Post("/reset-passwd-send-email", controllers.SetNewPasswd)
 	app.Get("/reset-passwd-form/:id", controllers.GetResetPasswdForm)
 	app.Post("/reset-passwd-for/:id", controllers.ResetPasswd)
+	app.Get("/get-all-users", middleware.AuthGuard, middleware.RoleGuard(middleware.Librarian), controllers.GetAllUsersPage)
+	app.Post("/set-new-role", middleware.AuthGuard, middleware.RoleGuard(middleware.Librarian), controllers.SetNewRoleForUser)
 
 	// Handle 404 errors (Not Found)
 	app.Use(func(c *fiber.Ctx) error {
