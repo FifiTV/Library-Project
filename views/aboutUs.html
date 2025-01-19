@@ -3,10 +3,15 @@
   <head>
     {{template "head_tmpl"}}
   </head>
+  <body class="bg-gray-100 flex flex-col min-h-screen">
+    <!-- Header -->
+    {{template "header"}}
 
-  <body>
-    {{template "header"}} {{template "menu" .}}
-    <div class="center-wrapper">
+    <!-- Menu -->
+    {{template "menu" .}}
+
+    <!-- Główna zawartość strony -->
+    <main class="flex-grow bg-gray-200 py-10">
       <div
         class="about-container bg-gray-100 max-w-4xl mx-auto flex flex-col p-6 rounded-lg shadow-lg"
       >
@@ -36,7 +41,7 @@
         <!-- Zdjęcie biblioteki -->
         <div class="library-image mb-6">
           <img
-            src="/public/assets/biblioteka"
+            src="/assets/biblioteka.png"
             alt="Zdjęcie biblioteki"
             class="rounded-lg shadow-lg mx-auto w-full h-auto max-w-xl"
           />
@@ -86,7 +91,7 @@
 
         <!-- Misja -->
         <section
-          class="mission-section text-gray-700 text-lg leading-relaxed text-justify"
+          class="mission-section text-gray-700 text-lg leading-relaxed text-justify mb-6"
         >
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">Nasza misja</h2>
           <p>
@@ -98,9 +103,58 @@
             zasoby były dostępne i atrakcyjne dla wszystkich.
           </p>
         </section>
-      </div>
-    </div>
 
-    {{template "footer"}} {{template "scripts"}}
+        <!-- Nasza ekipa -->
+        <section
+          class="team-section text-gray-700 text-lg leading-relaxed text-center"
+        >
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Nasza ekipa</h2>
+          <div class="team-images flex justify-center space-x-4">
+            <!-- Członek zespołu 1 -->
+            <div class="team-member">
+              <img
+                src="/assets/4.jpg"
+                alt="Zdjęcie Piotra"
+                class="rounded-lg h-40 w-auto shadow-lg"
+              />
+              <p class="text-sm text-gray-600 mt-2">Piotr</p>
+            </div>
+            <!-- Członek zespołu 2 -->
+            <div class="team-member">
+              <img
+                src="/assets/miki.png"
+                alt="Zdjęcie Mikołaja"
+                class="rounded-lg h-40 w-auto shadow-lg"
+              />
+              <p class="text-sm text-gray-600 mt-2">Mikołaj</p>
+            </div>
+            <!-- Członek zespołu 3 -->
+            <div class="team-member">
+              <img
+                src="/assets/piotr.jpg"
+                alt="Zdjęcie Eryka"
+                class="rounded-lg h-40 w-auto shadow-lg"
+              />
+              <p class="text-sm text-gray-600 mt-2">Eryk</p>
+            </div>
+            <!-- Członek zespołu 4 -->
+            <div class="team-member">
+              <img
+                src="/assets/filip.jpg"
+                alt="Zdjęcie Filipa"
+                class="rounded-lg h-40 w-auto shadow-lg"
+              />
+              <p class="text-sm text-gray-600 mt-2">Filip</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Stopka -->
+    <footer class="bg-gray-800 text-white py-4">{{template "footer"}}</footer>
+
+    <!-- Skrypty -->
+    {{template "scripts"}}
   </body>
 </html>
