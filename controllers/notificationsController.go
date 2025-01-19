@@ -220,7 +220,18 @@ func SendUpcomingBorrowEventsEmail(c *fiber.Ctx) error {
 	}
 
 	sess, _ := middleware.GetSession(c)
-	email := sess.Get("mail").(string)
+	email := sess.Get("email")
+
+	if email == nil {
+		return fmt.Errorf("email not found in session")
+	}
+
+	emailStr, ok := email.(string)
+	if !ok {
+		return fmt.Errorf("email in session is not a valid string")
+	}
+
+	// Use `emailStr` safely here
 
 	// Prepare the email body
 	bookList := strings.Join(bookDetails, "<br>")
@@ -228,7 +239,7 @@ func SendUpcomingBorrowEventsEmail(c *fiber.Ctx) error {
 
 	// Send the email
 	sub := "Zwrot książek do biblioteki"
-	go SendEmail(email, sub, emailBody)
+	go SendEmail(emailStr, sub, emailBody)
 
 	return nil
 }
