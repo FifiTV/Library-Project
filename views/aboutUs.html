@@ -3,10 +3,15 @@
   <head>
     {{template "head_tmpl"}}
   </head>
+  <body class="bg-gray-100 flex flex-col min-h-screen">
+    <!-- Header -->
+    {{template "header"}}
 
-  <body>
-    {{template "header"}} {{template "menu" .}}
-    <div class="center-wrapper">
+    <!-- Menu -->
+    {{template "menu" .}}
+
+    <!-- Główna zawartość strony -->
+    <main class="flex-grow bg-gray-200 py-10">
       <div
         class="about-container bg-gray-100 max-w-4xl mx-auto flex flex-col p-6 rounded-lg shadow-lg"
       >
@@ -36,7 +41,7 @@
         <!-- Zdjęcie biblioteki -->
         <div class="library-image mb-6">
           <img
-            src="/public/assets/biblioteka"
+            src="/assets/biblioteka.png"
             alt="Zdjęcie biblioteki"
             class="rounded-lg shadow-lg mx-auto w-full h-auto max-w-xl"
           />
@@ -99,8 +104,12 @@
           </p>
         </section>
       </div>
-    </div>
+    </main>
 
-    {{template "footer"}} {{template "scripts"}}
+    <!-- Stopka -->
+    <footer class="bg-gray-800 text-white py-4">{{template "footer"}}</footer>
+
+    <!-- Skrypty -->
+    {{template "scripts"}}
   </body>
 </html>
