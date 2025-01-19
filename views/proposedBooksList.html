@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{template "head_tmpl"}}
+</head>
+<body class="bg-gray-100 font-sans leading-relaxed flex flex-col min-h-screen">
+    {{template "header"}} {{template "menu" .}}
+    <div class="max-w-6xl mx-auto p-6">
+        <h1 class="text-4xl font-semibold text-center mb-8">{{.Title}}</h1>
+        <ul class="space-y-4">
+            {{range .ProposedBookItems}}
+            <li class="bg-white shadow-md rounded-lg p-4">
+                <div class="flex items-start justify-between">
+                    <!-- Upvote section -->
+                    <div class="flex items-center space-x-2">
+                        <div class="text-green-600 text-lg font-bold">&#9650;</div>
+                        <span class="text-green-600 text-lg font-semibold">{{.UpVotes}}</span>
+                    </div>
+
+                    <!-- Book Title and Author -->
+                    <div class="flex-1 text-center">
+                        <h1 class="text-xl">"{{.Title}}" by {{.Author}}</h1>
+                    </div>
+
+                    <!-- Show/Hide Comments Button -->
+                    <button 
+                    class="bg-gradient-to-r from-green-400 to-blue-500 text-white px-4 py-2 text-sm rounded-full shadow-lg hover:from-green-500 hover:to-blue-600 focus:outline-none font-bold"
+                        onclick="toggleComments(this)">
+                        Pokaż komentarze
+                    </button>
+                </div>
+
+                <!-- Comments Section -->
+                <ul class="mt-4 space-y-2 hidden">
+                    {{range .Comments}}
+                    <li class="bg-gray-50 border rounded-md p-3">
+                        <div class="text-sm text-gray-800 font-medium">
+                            {{.UserName}} {{.UserLastName}}
+                        </div>
+                        <p class="text-sm text-gray-600">{{.Content}}</p>
+                    </li>
+                    {{end}}
+                </ul>
+            </li>
+            {{end}}
+        </ul>
+    </div>
+    {{template "footer"}}
+    {{template "scripts"}}
+
+    <script>
+        // Function to toggle the visibility of comments
+        function toggleComments(button) {
+            const commentsSection = button.parentElement.nextElementSibling;
+            if (commentsSection.classList.contains('hidden')) {
+                commentsSection.classList.remove('hidden');
+                button.textContent = 'Ukryj komentarze';
+            } else {
+                commentsSection.classList.add('hidden');
+                button.textContent = 'Pokaż komentarze';
+            }
+        }
+    </script>
+</body>
+</html>

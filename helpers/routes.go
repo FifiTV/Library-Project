@@ -50,6 +50,10 @@ func Routes(app *fiber.App) {
 			return controllers.ProposeNewBook(c)
 		})
 
+	app.Get("/proposedBooksList", middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
+		controllers.GetProposedBookItemsPage)
+
 	app.Get("/booksToReturn", middleware.AuthGuard,
 		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetBooksToReturnPage)

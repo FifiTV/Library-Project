@@ -112,6 +112,15 @@ func GetApprovalQueuePage(c *fiber.Ctx) error {
 	})
 }
 
+func GetProposedBookItemsPage(c *fiber.Ctx) error {
+	proposedBooksItems := ReturnProposedBooks(c)
+
+	return middleware.Render("proposedBooksList", c, fiber.Map{
+		"Title":             "Propozycje użytkowników",
+		"ProposedBookItems": proposedBooksItems,
+	})
+}
+
 func GetBooksToReturnPage(c *fiber.Ctx) error {
 	booksToReturn := GetBooksToReturn(c)
 	now := time.Now()

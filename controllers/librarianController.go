@@ -7,6 +7,7 @@ import (
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -379,4 +380,51 @@ func BookReturned(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect("/booksToReturn")
+}
+
+func ReturnProposedBooks(c *fiber.Ctx) []models.PropsedBookItem {
+	bookPropositionsCollection := initializers.Client.Collection("bookPropositions")
+
+	docs, err := bookPropositionsCollection.Documents(context.Background()).GetAll()
+	if err != nil {
+		log.Println("Error reading documents: %v", err)
+	}
+
+	var proposeBooks []models.ProposedBook
+
+	for _, doc := range docs {
+		var propBook models.ProposedBook
+		if err := doc.DataTo(&propBook); err != nil {
+			log.Println("Error decoding document: %v", err)
+		}
+		proposeBooks = append(proposeBooks, propBook)
+	}
+
+	var proposeBookItems []models.PropsedBookItem
+
+	for _, item := range proposeBooks {
+		var commentItems []models.CommentItem
+		for _, com := range item.Comments {
+			user := GetOneUser(c, com.UserID)
+			commentItem := models.CommentItem{
+				UserName:     user.FirstName,
+				UserLastName: user.LastName,
+				Content:      com.Content,
+			}
+
+			commentItems = append(commentItems, commentItem)
+		}
+		proposedBookItem := models.PropsedBookItem{
+			Title:    item.Title,
+			Author:   item.Author,
+			UpVotes:  item.UpVoutes,
+			Comments: commentItems,
+		}
+		proposeBookItems = append(proposeBookItems, proposedBookItem)
+	}
+	sort.Slice(proposeBookItems, func(i, j int) bool {
+		return proposeBookItems[i].UpVotes > proposeBookItems[j].UpVotes
+	})
+
+	return proposeBookItems
 }
