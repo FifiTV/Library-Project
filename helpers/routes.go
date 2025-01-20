@@ -94,8 +94,9 @@ func Routes(app *fiber.App) {
 
 	app.Get("/reset-passwd-email", controllers.GetEmailFormForResetPasswd)
 	app.Post("/reset-passwd-send-email", controllers.SetNewPasswd)
-	app.Get("/reset-passwd-form/:id", controllers.GetResetPasswdForm)
-	app.Post("/reset-passwd-for/:id", controllers.ResetPasswd)
+	app.Get("/reset-passwd-form/:randkey", controllers.GetResetPasswdForm)
+	app.Post("/reset-passwd-for/:randkey", controllers.ResetPasswd)
+
 	app.Get("/get-all-users", middleware.AuthGuard, middleware.RoleGuard(middleware.Librarian), controllers.GetAllUsersPage)
 	app.Post("/set-new-role", middleware.AuthGuard, middleware.RoleGuard(middleware.Librarian), controllers.SetNewRoleForUser)
 

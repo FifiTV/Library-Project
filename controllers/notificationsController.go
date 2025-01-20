@@ -181,7 +181,7 @@ func loadTemplate(filePath string) (string, error) {
 	return string(content), nil
 }
 
-func SendResetPasswdEMail(to string) error {
+func SendResetPasswdEMail(to, hash string) error {
 	templateContent, err := loadTemplate("views/email/passwdReset.html")
 	if err != nil {
 		return fmt.Errorf("could not load template: %v", err)
@@ -190,6 +190,7 @@ func SendResetPasswdEMail(to string) error {
 	data := map[string]interface{}{
 		"Subject":  sub,
 		"UserMail": to,
+		"Hash":     hash,
 	}
 
 	tmpl, err := template.New("email").Parse(templateContent)

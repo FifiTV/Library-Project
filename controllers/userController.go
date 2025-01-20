@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"my-firebase-project/initializers"
 	"my-firebase-project/middleware"
 	"my-firebase-project/models"
@@ -15,6 +16,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+
 	"google.golang.org/api/iterator"
 )
 
@@ -149,8 +151,6 @@ func GetLibrarians(ctx context.Context, client *firestore.Client) ([]string, err
 	return librarianIDs, nil
 }
 
-
-
 func sendReminders(c *fiber.Ctx) error {
 	// Retrieve userID from session
 	// sess, _ := middleware.GetSession(c)
@@ -215,45 +215,45 @@ func ExtendDate(c *fiber.Ctx) error {
 		}); err != nil {
 			return nil
 		}
-		 // Pobierz tytuł książki i dane użytkownika
-		 book := GetOneBook(c, event.BookID)
-		 user := GetOneUser(c, event.UserID)
- 
-		 // Wyślij powiadomienie do użytkownika
-		 err := CreateNotification(
-			 strconv.Itoa(event.UserID),
-			 book.Title, // Tytuł książki
-			 "Przedłużyłeś termin oddania książki o tydzień.",
-			 1, // Powiadomienie dla użytkownika
-			 false,
-		 )
-		 if err != nil {
-			 log.Printf("Błąd podczas tworzenia powiadomienia dla użytkownika: %v", err)
-		 }
- 
-		 // Pobierz bibliotekarzy
-		 librarians, err := GetLibrarians(context.Background(), initializers.Client)
-		 if err != nil {
-			 log.Printf("Błąd podczas pobierania bibliotekarzy: %v", err)
-		 } else {
-			 // Wyślij powiadomienie do każdego bibliotekarza
-			 for _, librarianID := range librarians {
-				 err := CreateNotification(
-					 librarianID,
-					 book.Title, // Tytuł książki
-					 fmt.Sprintf("Użytkownik %s przedłużył termin oddania książki o tydzień.", user.Email),
-					 2, // Powiadomienie dla bibliotekarzy
-					 false,
-				 )
-				 if err != nil {
-					 log.Printf("Błąd podczas tworzenia powiadomienia dla bibliotekarza: %v", err)
-				 }
-			 }
-		 }
-	 } else {
-		 return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			 "errorMessage": "Nie można przedłużyć terminu oddania książki. Limit został wyczerpany.",
-		 })
+		// Pobierz tytuł książki i dane użytkownika
+		book := GetOneBook(c, event.BookID)
+		user := GetOneUser(c, event.UserID)
+
+		// Wyślij powiadomienie do użytkownika
+		err := CreateNotification(
+			strconv.Itoa(event.UserID),
+			book.Title, // Tytuł książki
+			"Przedłużyłeś termin oddania książki o tydzień.",
+			1, // Powiadomienie dla użytkownika
+			false,
+		)
+		if err != nil {
+			log.Printf("Błąd podczas tworzenia powiadomienia dla użytkownika: %v", err)
+		}
+
+		// Pobierz bibliotekarzy
+		librarians, err := GetLibrarians(context.Background(), initializers.Client)
+		if err != nil {
+			log.Printf("Błąd podczas pobierania bibliotekarzy: %v", err)
+		} else {
+			// Wyślij powiadomienie do każdego bibliotekarza
+			for _, librarianID := range librarians {
+				err := CreateNotification(
+					librarianID,
+					book.Title, // Tytuł książki
+					fmt.Sprintf("Użytkownik %s przedłużył termin oddania książki o tydzień.", user.Email),
+					2, // Powiadomienie dla bibliotekarzy
+					false,
+				)
+				if err != nil {
+					log.Printf("Błąd podczas tworzenia powiadomienia dla bibliotekarza: %v", err)
+				}
+			}
+		}
+	} else {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errorMessage": "Nie można przedłużyć terminu oddania książki. Limit został wyczerpany.",
+		})
 	}
 
 	return c.Redirect("/history")
@@ -397,7 +397,7 @@ func ProposeNewBook(c *fiber.Ctx) error {
 			Comments: []models.Comment{newComment},
 			UpVoutes: 1,
 		}
-		
+
 		_, _, err := bookPropositionsCollection.Add(context.Background(), newProposedBook)
 		if err != nil {
 			log.Printf("Error adding new ProposalBook: %v", err)
@@ -430,6 +430,36 @@ func GetEmailFormForResetPasswd(c *fiber.Ctx) error {
 	return middleware.Render("forms/resetPasswdFormEmail", c, fiber.Map{})
 }
 
+func createResetPasswdEvent(c *fiber.Ctx, mail string) (string, error) {
+	user, err := GetOneUserByMail(c, mail)
+	if err != nil {
+		return "", fmt.Errorf("user with email %s not found: %v", mail, err)
+	}
+
+	usersCollection := initializers.Client.Collection("users")
+	userDocRef := usersCollection.Doc(user.FirestoreDocID) // This gives you the document reference
+	if userDocRef == nil {
+		return "", fmt.Errorf("could not get document reference for user with email %s", mail)
+	}
+
+	keyValue := generateRandomString(32)
+
+	resetEvent := models.ResetPasswdEvent{
+		UserId:   user.Id,
+		Start:    time.Now(),
+		End:      time.Now().Add(10 * time.Minute),
+		KeyValue: keyValue,
+	}
+
+	eventsCollection := initializers.Client.Collection("resetPasswdEvent")
+	_, _, err1 := eventsCollection.Add(context.Background(), resetEvent)
+	if err1 != nil {
+		return "", fmt.Errorf("error saving reset password event: %v", err1)
+	}
+
+	return keyValue, nil
+}
+
 func SetNewPasswd(c *fiber.Ctx) error {
 	type RequestBody struct {
 		Email string `json:"email"`
@@ -445,8 +475,13 @@ func SetNewPasswd(c *fiber.Ctx) error {
 		// fmt.Println("Email not provided")
 		return c.Status(400).SendString("Email is required")
 	}
+	hash, err := createResetPasswdEvent(c, userMail)
+	if err != nil {
+		fmt.Println("Error during creating Reset Password Event:", err)
+		return c.Status(500).SendString("Failed to send reset email")
+	}
 
-	err := SendResetPasswdEMail(userMail)
+	err = SendResetPasswdEMail(userMail, hash)
 	if err != nil {
 		fmt.Println("Error sending reset email:", err)
 		return c.Status(500).SendString("Failed to send reset email")
@@ -456,19 +491,19 @@ func SetNewPasswd(c *fiber.Ctx) error {
 }
 
 func GetResetPasswdForm(c *fiber.Ctx) error {
-	mail := c.Params("id")
+	randKey := c.Params("randkey")
 	return middleware.Render("forms/resetPasswd", c, fiber.Map{
-		"Email": mail,
+		"RandKey": randKey,
 	})
 }
 
-func GetOneUserByMail(c *fiber.Ctx, mail string) models.User {
+func GetOneUserByMail(c *fiber.Ctx, mail string) (models.User, error) {
 	usersCollection := initializers.Client.Collection("users")
 
 	docs, err := usersCollection.Documents(context.Background()).GetAll()
 	if err != nil {
 		log.Printf("Error reading documents: %v", err)
-
+		return models.User{}, fmt.Errorf("failed to get documents: %w", err)
 	}
 
 	var userReturn models.User
@@ -477,42 +512,81 @@ func GetOneUserByMail(c *fiber.Ctx, mail string) models.User {
 		var user models.User
 		if err := doc.DataTo(&user); err != nil {
 			log.Printf("Error decoding document: %v", err)
+			continue
 		}
+
 		if user.Email == mail {
+			user.FirestoreDocID = doc.Ref.ID
 			userReturn = user
+			break
 		}
 	}
 
-	return userReturn
+	if userReturn.FirestoreDocID == "" {
+		return models.User{}, fmt.Errorf("user with email %s not found", mail)
+	}
+
+	return userReturn, nil
 }
 
-func updatePasswdForUser(c *fiber.Ctx, userId int, newPasswd string) error {
+// func updatePasswdForUser(c *fiber.Ctx, userId int, newPasswd string) error {
+// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPasswd), bcrypt.DefaultCost)
+// 	if err != nil {
+// 		log.Printf("Error hashing password: %v", err)
+// 		return c.Status(500).SendString("Internal Server Error")
+// 	}
+// 	usersCollection := initializers.Client.Collection("users")
+// 	userQuery := usersCollection.Where("id", "==", userId).Limit(1)
+// 	iter := userQuery.Documents(c.Context())
+// 	doc, err := iter.Next()
+// 	if err != nil {
+// 		log.Printf("Error finding user with id %d: %v", userId, err)
+// 		return c.Status(404).SendString("User not found")
+// 	}
+// 	userDocRef := doc.Ref
+// 	_, err = userDocRef.Update(c.Context(), []firestore.Update{
+// 		{
+// 			Path:  "password",
+// 			Value: string(hashedPassword),
+// 		},
+// 	})
+// 	if err != nil {
+// 		log.Printf("Error updating password in Firestore: %v", err)
+// 		return c.Status(500).SendString("Error updating password")
+// 	}
 
+// 	return nil
+// }
+
+func updatePasswdForUser(c *fiber.Ctx, resetPasswdEvent models.ResetPasswdEvent, newPasswd string) error {
+	// Hash the new password before storing it
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPasswd), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
 		return c.Status(500).SendString("Internal Server Error")
 	}
 
-	usersCollection := initializers.Client.Collection("users")
-	userQuery := usersCollection.Where("id", "==", userId).Limit(1)
-	iter := userQuery.Documents(c.Context())
-
-	doc, err := iter.Next()
-	if err != nil {
-		log.Printf("Error finding user with id %d: %v", userId, err)
-		return c.Status(404).SendString("User not found")
+	userId := resetPasswdEvent.UserId
+	if userId == 0 {
+		log.Printf("Invalid user ID in reset password event")
+		return c.Status(400).SendString("Invalid reset password event")
 	}
 
-	userDocRef := doc.Ref
+	user := GetOneUser(c, userId)
+	if err != nil {
+		log.Printf("Error fetching user with ID %d: %v", userId, err)
+		return c.Status(500).SendString("Error fetching user details")
+	}
 
+	usersCollection := initializers.Client.Collection("users")
+	userDocRef := usersCollection.Doc(user.FirestoreDocID)
+	fmt.Println(user)
 	_, err = userDocRef.Update(c.Context(), []firestore.Update{
 		{
 			Path:  "password",
 			Value: string(hashedPassword),
 		},
 	})
-
 	if err != nil {
 		log.Printf("Error updating password in Firestore: %v", err)
 		return c.Status(500).SendString("Error updating password")
@@ -521,32 +595,74 @@ func updatePasswdForUser(c *fiber.Ctx, userId int, newPasswd string) error {
 	return nil
 }
 
+func generateRandomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	rand.Seed(time.Now().UnixNano()) // No casting needed
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+func getResetPasswdEventByKeyValue(c *fiber.Ctx, keyValue string) (models.ResetPasswdEvent, error) {
+	eventsCollection := initializers.Client.Collection("resetPasswdEvent")
+
+	query := eventsCollection.Where("key_value", "==", keyValue)
+
+	docs, err := query.Documents(context.Background()).GetAll()
+	if err != nil {
+		return models.ResetPasswdEvent{}, fmt.Errorf("error querying reset password event: %v", err)
+	}
+
+	if len(docs) == 0 {
+		return models.ResetPasswdEvent{}, fmt.Errorf("no reset password event found for key_value: %s", keyValue)
+	}
+
+	var resetEvent models.ResetPasswdEvent
+
+	if err := docs[0].DataTo(&resetEvent); err != nil {
+		return models.ResetPasswdEvent{}, fmt.Errorf("error decoding reset password event: %v", err)
+	}
+	return resetEvent, nil
+}
+
 func ResetPasswd(c *fiber.Ctx) error {
-	mail := c.Params("id")
+	keyVal := c.Params("randkey")
 	newPasswd := c.FormValue("newPasswd")
 	newPasswdR := c.FormValue("newPasswdR")
+
+	resetPasswdEvent, err := getResetPasswdEventByKeyValue(c, keyVal)
+	currentTime := time.Now()
+	if currentTime.Before(resetPasswdEvent.Start) || currentTime.After(resetPasswdEvent.End) {
+		return middleware.Render("forms/resetPasswd", c, fiber.Map{
+			"Message": "Link do resetowania hasła wygasł. Proszę spróbować ponownie.",
+		})
+	}
 
 	if !(len(newPasswd) >= 8 &&
 		regexp.MustCompile(`[0-9a-zA-Z]`).MatchString(newPasswd) &&
 		regexp.MustCompile(`[!@#$%^&*]`).MatchString(newPasswd)) {
 
 		return middleware.Render("forms/resetPasswd", c, fiber.Map{
-			"Email":   mail,
 			"Message": "Hasło nie spełnia wymagań!",
 		})
 	}
 
-	user := GetOneUserByMail(c, mail)
+	if err != nil {
+		fmt.Println(err)
+		return middleware.Render("forms/resetPasswd", c, fiber.Map{
+			"Message": "Wystąpił błąd proszę spróbować ponownie!",
+		})
+	}
 
 	if newPasswd != newPasswdR {
-		// Return a 400 status with a message that passwords do not match
 		return middleware.Render("forms/resetPasswd", c, fiber.Map{
-			"Email":   mail,
 			"Message": "Hasła muszą być takie same!",
 		})
 	}
 
-	updatePasswdForUser(c, user.Id, newPasswd)
+	updatePasswdForUser(c, resetPasswdEvent, newPasswd)
 	return middleware.Render("pageAfterChangingPasswd", c, fiber.Map{})
 }
 
