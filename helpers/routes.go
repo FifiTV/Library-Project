@@ -64,12 +64,12 @@ func Routes(app *fiber.App) {
 		controllers.BookReturned)
 
 	app.Get("/addBook",
-		// middleware.AuthGuard,
-		// middleware.RoleGuard(middleware.Librarian),
+		middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
 		controllers.GetAddBookPage)
 	app.Post("/addBook",
-		// middleware.AuthGuard,
-		// middleware.RoleGuard(middleware.Librarian),
+		middleware.AuthGuard,
+		middleware.RoleGuard(middleware.Librarian),
 		func(c *fiber.Ctx) error {
 			return controllers.AddNewBookToLibrary(c, initializers.Client)
 		})
