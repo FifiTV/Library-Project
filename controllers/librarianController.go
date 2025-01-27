@@ -33,24 +33,19 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	title := c.FormValue("title")
 	isNewBook := c.FormValue("newBook") == "on"
 	isBookExists := GetCountOfRecords(c, client, "books", "title", title)
-	if strings.TrimSpace(title) == "" {
+	title = strings.TrimSpace(title)
+	if title == "" {
 		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Proszę podać tytuł!",
 		})
 	}
 
-	if isBookExists == 0 {
-		return middleware.Render("forms/addBook", c, fiber.Map{
-			"errorMessage": "Książka z tym numerem już istnieje!",
-		})
-	}
-
 	title = strings.Title(title)
-	book, _ := GetBookByTitle(c, client, title)
 
-	if isNewBook && book == nil {
+	var book *models.Book
+	if isBookExists == 0 {
 		book = &models.Book{
-			Title:       book.Title,
+			Title:       title,
 			Author:      c.FormValue("author"),
 			Description: c.FormValue("description"),
 			Genre:       c.FormValue("genre"),
@@ -73,13 +68,10 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 				"errorMessage": "Wprowadź poprawne dane!",
 			})
 		}
-	} else if book == nil {
-		return middleware.Render("forms/addBook", c, fiber.Map{
-			"errorMessage": "Musisz dodać tę książkę do zbioru!",
-		})
+	} else {
+		book, _ = GetBookByTitle(c, client, title)
 	}
-	//Check the logic of this part
-	// if book.title is correct
+
 	if isNewBook && isBookExists > 0 {
 		return middleware.Render("forms/addBook", c, fiber.Map{
 			"errorMessage": "Ta książka już jest dodana do bazy! Musisz dodać egemplarz!",
@@ -89,7 +81,6 @@ func AddNewBookToLibrary(c *fiber.Ctx, client *firestore.Client) error {
 	var bookCopy models.BookCopy
 
 	inventoryNumber, _ := strconv.Atoi(c.FormValue("inventoryNumber"))
-
 	bookCopy.AddedOn = time.Now()
 	bookCopy.Available = true
 	bookCopy.BookID = book.Id

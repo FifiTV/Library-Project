@@ -150,14 +150,13 @@
             }
         }
 
-        const getNewInvetoryValue = async () => {
+        const getNewInventoryValue = async () => {
             try {
                 const response = await fetch('/api/next-inventory-number');
                 if (!response.ok) {
                     throw new Error('Upps coś poszło nie tak');
                 }
                 const data = await response.json();
-                // console.log('Next Inventory Number:', data.next_inventory_number);
                 return data.next_inventory_number;
             } catch (error) {
                 console.error('Error:', error);
@@ -170,12 +169,25 @@
 
             // Enable or disable the inventory input field
             inventoryInput.disabled = disableCheckbox.checked;
-            console.log( await getNewInvetoryValue())
-            // Clear the input value if disabled
+
             if (disableCheckbox.checked) {
-                inventoryInput.value = await getNewInvetoryValue();
+                const newVal = await getNewInventoryValue();
+                inventoryInput.value = String(newVal);
+                inventoryInput.setAttribute("value", String(newVal));
+            } else {
+                inventoryInput.value = "";
+                inventoryInput.removeAttribute("value");
             }
         }
+        
+        document.querySelector('form').addEventListener('submit', (event) => {
+            const inventoryInput = document.getElementById('inventoryNumber');
+            const disableCheckbox = document.getElementById('disableInventory');
+
+            if (disableCheckbox.checked) {
+                inventoryInput.disabled = false;
+            }
+        });
     </script>
 </body>
 
